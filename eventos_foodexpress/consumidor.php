@@ -298,3 +298,21 @@ function estadoPedido(string $idPedido): array
         'pasos' => count($pasos),
     ];
 }
+
+function atencionCliente(array $evento): array
+{
+    $tipo = $evento['tipo'];
+
+    if ($tipo !== 'consulta_estado_pedido') {
+        throw new InvalidArgumentException("El consumidor de atencion al cliente no procesa el evento {$tipo}");
+    }
+
+    $estado = estadoPedido($evento['id_pedido']);
+
+    return registrarAccion($tipo, 'atencion_cliente', $evento, [
+        'accion' => 'responder_estado_pedido',
+        'estado' => $estado['estado'],
+        'detalle' => $estado['detalle'],
+        'campos' => ['pasos_consultados' => $estado['pasos']],
+    ]);
+}
