@@ -1,13 +1,5 @@
 <?php
 
-/*
-consumidor.php
-Aqui se manejan los tres consumidores del sistema: Cocina, Logistica y
-Atencion al Cliente. Cada uno recibe un evento, decide que hacer segun el
-estado real del pedido y escribe lo que hizo en el archivo JSON de data/
-que corresponde al tipo de evento.
-*/
-
 declare(strict_types=1);
 
 const ARCHIVO_POR_EVENTO = [
