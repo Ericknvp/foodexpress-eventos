@@ -74,3 +74,22 @@ function dinero(int $valor): string
 {
     return '$ ' . number_format($valor, 0, ',', '.');
 }
+
+function envolver(string $texto, int $largo = 58): string
+{
+    return str_replace(PHP_EOL, PHP_EOL . str_repeat(' ', 16), wordwrap($texto, $largo, PHP_EOL, true));
+}
+
+function renderItems(array $items): void
+{
+    echo ' ' . str_pad('items', 14, '.') . PHP_EOL;
+
+    foreach (array_values($items) as $indice => $item) {
+        $subtotal = $item['cantidad'] * $item['precio'];
+        $etiqueta = ($indice + 1) . '. ' . $item['plato'];
+
+        echo '   ' . str_pad($etiqueta, 30, '.') . ' '
+            . $item['cantidad'] . ' x ' . str_pad(dinero($item['precio']), 12, ' ', STR_PAD_LEFT)
+            . ' = ' . dinero($subtotal) . PHP_EOL;
+    }
+}
