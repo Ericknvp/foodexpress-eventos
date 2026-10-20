@@ -237,7 +237,7 @@ function renderResumen(array $resumen, int $eventos): void
         $resumen
     );
 
-    tabla(['Escenario', 'Evento', 'Consumidor', 'Accion'], $filas);
+    tabla(['Esc.', 'Evento', 'Consumidor', 'Accion'], $filas);
 
     echo PHP_EOL . ' ARCHIVOS GENERADOS' . PHP_EOL;
     echo linea('-') . PHP_EOL;
