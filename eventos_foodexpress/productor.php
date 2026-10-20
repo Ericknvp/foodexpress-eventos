@@ -214,11 +214,11 @@ function ejecutar(): void
             renderResultado($resultado);
 
             $resumen[] = [
-                (string) $numero,
-                $ruta['tipo'],
-                $resultado['nombre'],
-                $resultado['accion'],
-                'data/' . $resultado['archivo'],
+                'escenario' => (string) $numero,
+                'evento' => $ruta['tipo'],
+                'consumidor' => $resultado['nombre'],
+                'accion' => $resultado['accion'],
+                'archivo' => 'data/' . $resultado['archivo'],
             ];
         }
     }
