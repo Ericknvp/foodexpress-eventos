@@ -10,6 +10,7 @@ const elementos = {
     cuerpoTabla: document.getElementById('cuerpo-tabla'),
     jsonBruto: document.getElementById('json-bruto'),
     rutaArchivo: document.getElementById('ruta-archivo'),
+    panelArchivo: document.getElementById('panel-archivo'),
     pestanas: Array.from(document.querySelectorAll('.pestana')),
 };
 
@@ -35,12 +36,7 @@ function crearElemento(etiqueta, clase, texto) {
     return nodo;
 }
 
-function formatearDinero(valor) {
-    return '$ ' + Number(valor).toLocaleString('es-CO');
-}
-
-function mostrarAviso(texto, tono) {
-    elementos.aviso.textContent = texto;
+function mostrarAviso(texto, tono) {    elementos.aviso.textContent = texto;
     elementos.aviso.dataset.tono = tono || 'info';
     elementos.aviso.classList.add('visible');
 
@@ -103,11 +99,19 @@ function poblarBandejas(archivos, animar) {
         const fichas = [];
 
         archivos.forEach((archivo) => {
-            archivo.registros.forEach((registro) => {
+            archivo.registros.forEach((registro, posicion) => {
                 if (registro.consumidor === area) {
-                    fichas.push(registro);
+                    fichas.push({ registro: registro, archivo: archivo, posicion: posicion });
                 }
             });
+        });
+
+        fichas.sort((a, b) => {
+            if (a.registro.registrado_en === b.registro.registrado_en) {
+                return b.posicion - a.posicion;
+            }
+
+            return a.registro.registrado_en < b.registro.registrado_en ? 1 : -1;
         });
 
         pila.innerHTML = '';
@@ -116,11 +120,11 @@ function poblarBandejas(archivos, animar) {
             const vacia = crearElemento('li', 'bandeja-vacia', 'Sin entregas en esta corrida');
             pila.appendChild(vacia);
         } else {
-            fichas.forEach((registro) => {
-                const clave = claveFicha(registro);
+            fichas.forEach((item) => {
+                const clave = claveFicha(item.registro);
                 const esNueva = !fichasConocidas.has(clave);
                 fichasConocidas.add(clave);
-                pila.appendChild(construirFicha(registro, esNueva && animar));
+                pila.appendChild(construirFicha(item.registro, esNueva && animar));
             });
         }
 
@@ -161,10 +165,14 @@ function poblarTabla(archivos) {
     elementos.rutaArchivo.textContent = archivo.archivo;
 }
 
-function pintarFranja(canal, areas) {
+function limpiarFranja() {
     elementos.franja.querySelectorAll('.franja-caja').forEach((caja) => {
         caja.classList.remove('activa', 'pulso');
     });
+}
+
+function pintarFranja(canal, areas) {
+    limpiarFranja();
 
     const cajaCanal = elementos.franja.querySelector('[data-canal="' + canal + '"]');
     const cajaEnrutador = elementos.franja.querySelector('[data-enrutador]');
@@ -221,6 +229,9 @@ async function emitir(clave, boton) {
         poblarTabla(estadoArchivos);
         actualizarContadores();
 
+        const destino = datos.ruta.resultados[0] ? archivoDeTipo(datos.ruta.resultados[0].evento) : '';
+        seleccionarArchivo(destino);
+
         const destinos = datos.ruta.destinos
             .map((area) => datos.ruta.resultados.find((r) => r.consumidor === area).nombre)
             .join(' y ');
@@ -234,6 +245,31 @@ async function emitir(clave, boton) {
     }
 }
 
+function activarPestana(pestana) {
+    archivoActivo = pestana.dataset.archivo;
+
+    elementos.pestanas.forEach((otra) => {
+        const activa = otra === pestana;
+        otra.setAttribute('aria-selected', activa ? 'true' : 'false');
+        otra.tabIndex = activa ? 0 : -1;
+    });
+
+    elementos.panelArchivo.setAttribute('aria-labelledby', pestana.id);
+    poblarTabla(estadoArchivos);
+}
+
+function seleccionarArchivo(nombreArchivo) {
+    if (!nombreArchivo) {
+        return;
+    }
+
+    const pestana = elementos.pestanas.find((otra) => otra.dataset.nombre === nombreArchivo);
+
+    if (pestana) {
+        activarPestana(pestana);
+    }
+}
+
 async function reiniciar() {
     elementos.reiniciar.disabled = true;
 
@@ -243,6 +279,7 @@ async function reiniciar() {
 
         estadoArchivos = datos.archivos;
         fichasConocidas.clear();
+        limpiarFranja();
 
         poblarBandejas(estadoArchivos, false);
         poblarTabla(estadoArchivos);
@@ -264,13 +301,7 @@ function iniciar() {
     elementos.reiniciar.addEventListener('click', reiniciar);
 
     elementos.pestanas.forEach((pestana) => {
-        pestana.addEventListener('click', () => {
-            archivoActivo = pestana.dataset.archivo;
-            elementos.pestanas.forEach((otra) => {
-                otra.setAttribute('aria-selected', otra === pestana ? 'true' : 'false');
-            });
-            poblarTabla(estadoArchivos);
-        });
+        pestana.addEventListener('click', () => activarPestana(pestana));
     });
 
     fetch('api/estado.php')
