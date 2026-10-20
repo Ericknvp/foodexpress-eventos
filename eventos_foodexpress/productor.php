@@ -22,3 +22,16 @@ function escenarioPedidoNuevo(): array
         'fecha' => '2026-10-20 12:05:00',
     ];
 }
+
+function escenarioPedidoCancelado(): array
+{
+    return [
+        'tipo' => 'pedido_cancelado',
+        'origen' => 'sitio_web',
+        'id_pedido' => 'FE-1001',
+        'cliente' => 'Valentina Rojas',
+        'restaurante' => 'SaborBrasa',
+        'motivo' => 'El cliente digito una direccion equivocada y cancelo desde el sitio web',
+        'fecha' => '2026-10-20 12:07:30',
+    ];
+}
