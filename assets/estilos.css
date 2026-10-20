@@ -307,26 +307,6 @@ table {
     font-weight: 600;
 }
 
-.punto {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex: none;
-    background: var(--carrier);
-}
-
-.area--cocina .punto {
-    background: var(--cocina);
-}
-
-.area--logistica .punto {
-    background: var(--logistica);
-}
-
-.area--atencion_cliente .punto {
-    background: var(--atencion);
-}
-
 .conteo {
     margin-left: auto;
     font-size: 13px;
