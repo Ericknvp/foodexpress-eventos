@@ -1,5 +1,4 @@
 const AREAS = ['cocina', 'logistica', 'atencion_cliente'];
-const ESTADOS_ALARMA = ['cancelado'];
 const NOMBRES_AREA = {
     cocina: 'Cocina',
     logistica: 'Logística',
@@ -7,12 +6,8 @@ const NOMBRES_AREA = {
 };
 
 const elementos = {
-    franja: document.getElementById('franja'),
     aviso: document.getElementById('aviso'),
     reiniciar: document.getElementById('reiniciar'),
-    cifraEventos: document.getElementById('cifra-eventos'),
-    cifraEntregas: document.getElementById('cifra-entregas'),
-    cuerpoTabla: document.getElementById('cuerpo-tabla'),
     jsonBruto: document.getElementById('json-bruto'),
     rutaArchivo: document.getElementById('ruta-archivo'),
     panelArchivo: document.getElementById('panel-archivo'),
@@ -20,12 +15,9 @@ const elementos = {
 };
 
 let archivoActivo = 'nuevo_pedido';
+let estadoArchivos = [];
 let avisoTemporizador = null;
 const fichasConocidas = new Set();
-
-function claveFicha(registro) {
-    return [registro.consumidor, registro.accion, registro.estado, registro.registrado_en, registro.id_pedido || ''].join('|');
-}
 
 function crearElemento(etiqueta, clase, texto) {
     const nodo = document.createElement(etiqueta);
@@ -41,7 +33,12 @@ function crearElemento(etiqueta, clase, texto) {
     return nodo;
 }
 
-function mostrarAviso(texto, tono) {    elementos.aviso.textContent = texto;
+function claveFicha(registro) {
+    return [registro.consumidor, registro.accion, registro.registrado_en].join('|');
+}
+
+function mostrarAviso(texto, tono) {
+    elementos.aviso.textContent = texto;
     elementos.aviso.dataset.tono = tono || 'info';
     elementos.aviso.classList.add('visible');
 
@@ -51,37 +48,27 @@ function mostrarAviso(texto, tono) {    elementos.aviso.textContent = texto;
     }, 3200);
 }
 
+function nombreArchivoDe(tipo) {
+    const encontrado = estadoArchivos.find((archivo) => archivo.tipo === tipo);
+
+    return encontrado ? encontrado.nombre : '';
+}
+
 function construirFicha(registro, animar) {
     const ficha = crearElemento('li', 'ficha');
-    const entrada = crearElemento('div', 'ficha-entrada');
 
-    entrada.appendChild(crearElemento('span', 'ficha-evento', registro.evento));
+    const accion = crearElemento('p', 'ficha-accion', registro.accion);
+    accion.appendChild(crearElemento('span', 'ficha-evento', registro.evento));
+    ficha.appendChild(accion);
 
-    if (registro.id_pedido) {
-        entrada.appendChild(crearElemento('span', 'ficha-id', registro.id_pedido));
-    }
+    const estado = crearElemento('p', 'ficha-estado', registro.estado);
 
-    ficha.appendChild(entrada);
-    ficha.appendChild(crearElemento('p', 'ficha-accion', registro.accion));
-
-    const estado = crearElemento('span', 'ficha-estado', registro.estado);
-
-    if (ESTADOS_ALARMA.includes(registro.estado)) {
+    if (registro.estado === 'cancelado') {
         estado.dataset.alarma = 'si';
     }
 
     ficha.appendChild(estado);
-
-    if (registro.detalle) {
-        ficha.appendChild(crearElemento('p', 'ficha-detalle', registro.detalle));
-    }
-
-    const pie = crearElemento('div', 'ficha-pie');
-    const nombreArchivo = 'data/' + archivoDeTipo(registro.evento);
-    pie.appendChild(crearElemento('span', null, nombreArchivo));
-    pie.appendChild(crearElemento('time', null, (registro.registrado_en || '').slice(11)));
-
-    ficha.appendChild(pie);
+    ficha.appendChild(crearElemento('p', 'ficha-pie', 'data/' + nombreArchivoDe(registro.evento)));
 
     if (animar) {
         ficha.classList.add('ficha-nueva');
@@ -90,23 +77,15 @@ function construirFicha(registro, animar) {
     return ficha;
 }
 
-function archivoDeTipo(tipo) {
-    const encontrada = estadoArchivos.find((archivo) => archivo.tipo === tipo);
-
-    return encontrada ? encontrada.nombre : '';
-}
-
-let estadoArchivos = [];
-
-function poblarBandejas(archivos, animar) {
+function poblarAreas(animar) {
     AREAS.forEach((area) => {
         const pila = document.querySelector('[data-pila="' + area + '"]');
         const fichas = [];
 
-        archivos.forEach((archivo) => {
+        estadoArchivos.forEach((archivo) => {
             archivo.registros.forEach((registro, posicion) => {
                 if (registro.consumidor === area) {
-                    fichas.push({ registro: registro, archivo: archivo, posicion: posicion });
+                    fichas.push({ registro: registro, posicion: posicion });
                 }
             });
         });
@@ -122,7 +101,7 @@ function poblarBandejas(archivos, animar) {
         pila.innerHTML = '';
 
         if (fichas.length === 0) {
-            const vacia = crearElemento('li', 'bandeja-vacia', 'Sin entregas en esta corrida');            pila.appendChild(vacia);
+            pila.appendChild(crearElemento('li', 'bandeja-vacia', 'Sin entregas todavía.'));
         } else {
             fichas.forEach((item) => {
                 const clave = claveFicha(item.registro);
@@ -132,81 +111,40 @@ function poblarBandejas(archivos, animar) {
             });
         }
 
-        const conteo = document.querySelector('[data-conteo="' + area + '"]');
-        conteo.textContent = String(fichas.length);
+        document.querySelector('[data-conteo="' + area + '"]').textContent = String(fichas.length);
     });
 }
 
-function poblarTabla(archivos) {
-    const archivo = archivos.find((item) => item.tipo === archivoActivo) || archivos[0];
-    elementos.cuerpoTabla.innerHTML = '';
-
-    if (archivo.registros.length === 0) {
-        const fila = crearElemento('tr');
-        const celda = crearElemento('td', 'celda-mono', 'El archivo aún no tiene registros.');
-        celda.colSpan = 3;
-        fila.appendChild(celda);
-        elementos.cuerpoTabla.appendChild(fila);
-    } else {
-        archivo.registros.forEach((registro) => {
-            const fila = crearElemento('tr');
-            const consumidor = crearElemento('td', 'celda-mono');
-            consumidor.appendChild(crearElemento('strong', null, NOMBRES_AREA[registro.consumidor] || registro.consumidor));
-            fila.appendChild(consumidor);
-            fila.appendChild(crearElemento('td', 'celda-mono', registro.accion));
-
-            const estado = crearElemento('td', 'celda-estado');
-            estado.appendChild(crearElemento('strong', null, registro.estado));
-            estado.appendChild(crearElemento('br'));
-            estado.appendChild(crearElemento('span', 'celda-hora', registro.registrado_en));
-            fila.appendChild(estado);
-
-            elementos.cuerpoTabla.appendChild(fila);
-        });
-    }
+function poblarArchivo() {
+    const archivo = estadoArchivos.find((item) => item.tipo === archivoActivo) || estadoArchivos[0];
 
     elementos.jsonBruto.textContent = JSON.stringify(archivo.registros, null, 2);
-    elementos.rutaArchivo.textContent = archivo.archivo;
+    elementos.rutaArchivo.textContent = 'data/' + archivo.nombre;
 }
 
-function limpiarFranja() {
-    elementos.franja.querySelectorAll('.franja-caja').forEach((caja) => {
-        caja.classList.remove('activa', 'pulso');
+function activarPestana(pestana) {
+    archivoActivo = pestana.dataset.archivo;
+
+    elementos.pestanas.forEach((otra) => {
+        const activa = otra === pestana;
+        otra.setAttribute('aria-selected', activa ? 'true' : 'false');
+        otra.tabIndex = activa ? 0 : -1;
     });
+
+    elementos.panelArchivo.setAttribute('aria-labelledby', pestana.id);
+    poblarArchivo();
 }
 
-function pintarFranja(canal, areas) {
-    limpiarFranja();
+function seleccionarArchivo(nombreArchivo) {
+    if (!nombreArchivo) {
+        return;
+    }
 
-    const cajaCanal = elementos.franja.querySelector('[data-canal="' + canal + '"]');
-    const cajaEnrutador = elementos.franja.querySelector('[data-enrutador]');
+    const pestana = elementos.pestanas.find((otra) => otra.dataset.nombre === nombreArchivo);
 
-    [cajaCanal, cajaEnrutador].forEach((caja) => {
-        if (caja) {
-            caja.classList.add('activa', 'pulso');
-        }
-    });
-
-    areas.forEach((area) => {
-        const caja = elementos.franja.querySelector('[data-area="' + area + '"]');
-
-        if (caja) {
-            caja.classList.add('activa', 'pulso');
-        }
-    });
-}
-
-function actualizarContadores() {
-    const tipos = new Set();
-    let entregas = 0;
-
-    estadoArchivos.forEach((archivo) => {
-        entregas += archivo.registros.length;
-        archivo.registros.forEach((registro) => tipos.add(registro.evento));
-    });
-
-    elementos.cifraEventos.textContent = String(tipos.size);
-    elementos.cifraEntregas.textContent = String(entregas);
+    if (pestana) {
+        activarPestana(pestana);
+    }
 }
 
 async function emitir(clave, boton) {
@@ -228,49 +166,20 @@ async function emitir(clave, boton) {
 
         estadoArchivos = datos.archivos;
 
-        pintarFranja(datos.canal, datos.ruta.destinos);
-        poblarBandejas(estadoArchivos, true);
-        poblarTabla(estadoArchivos);
-        actualizarContadores();
+        poblarAreas(true);
+        poblarArchivo();
 
-        const destino = datos.ruta.resultados[0] ? archivoDeTipo(datos.ruta.resultados[0].evento) : '';
+        const destino = datos.ruta.resultados[0] ? nombreArchivoDe(datos.ruta.resultados[0].evento) : '';
         seleccionarArchivo(destino);
 
-        const destinos = datos.ruta.destinos
-            .map((area) => NOMBRES_AREA[area] || area)
-            .join(' y ');
+        const areas = datos.ruta.destinos.map((area) => NOMBRES_AREA[area] || area).join(' y ');
 
-        mostrarAviso(datos.ruta.tipo + ' entregado a ' + destinos + '.');
+        mostrarAviso(datos.ruta.tipo + ' entregado a ' + areas + '.');
     } catch (error) {
         mostrarAviso(error.message, 'error');
     } finally {
         boton.disabled = false;
-        boton.textContent = boton.dataset.etiqueta;
-    }
-}
-
-function activarPestana(pestana) {
-    archivoActivo = pestana.dataset.archivo;
-
-    elementos.pestanas.forEach((otra) => {
-        const activa = otra === pestana;
-        otra.setAttribute('aria-selected', activa ? 'true' : 'false');
-        otra.tabIndex = activa ? 0 : -1;
-    });
-
-    elementos.panelArchivo.setAttribute('aria-labelledby', pestana.id);
-    poblarTabla(estadoArchivos);
-}
-
-function seleccionarArchivo(nombreArchivo) {
-    if (!nombreArchivo) {
-        return;
-    }
-
-    const pestana = elementos.pestanas.find((otra) => otra.dataset.nombre === nombreArchivo);
-
-    if (pestana) {
-        activarPestana(pestana);
+        boton.textContent = 'Emitir';
     }
 }
 
@@ -283,12 +192,10 @@ async function reiniciar() {
 
         estadoArchivos = datos.archivos;
         fichasConocidas.clear();
-        limpiarFranja();
 
-        poblarBandejas(estadoArchivos, false);
-        poblarTabla(estadoArchivos);
-        actualizarContadores();
-        mostrarAviso('Archivos de data/ reiniciados. La simulación vuelve a empezar.');
+        poblarAreas(false);
+        poblarArchivo();
+        mostrarAviso('Archivos de data/ reiniciados.');
     } catch (error) {
         mostrarAviso(error.message, 'error');
     } finally {
@@ -298,7 +205,6 @@ async function reiniciar() {
 
 function iniciar() {
     document.querySelectorAll('[data-emitir]').forEach((boton) => {
-        boton.dataset.etiqueta = boton.textContent;
         boton.addEventListener('click', () => emitir(boton.dataset.emitir, boton));
     });
 
@@ -312,9 +218,8 @@ function iniciar() {
         .then((respuesta) => respuesta.json())
         .then((datos) => {
             estadoArchivos = datos.archivos;
-            poblarBandejas(estadoArchivos, false);
-            poblarTabla(estadoArchivos);
-            actualizarContadores();
+            poblarAreas(false);
+            poblarArchivo();
         })
         .catch(() => mostrarAviso('No se pudo leer el estado de los archivos.', 'error'));
 }
