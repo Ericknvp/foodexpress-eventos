@@ -35,3 +35,14 @@ function escenarioPedidoCancelado(): array
         'fecha' => '2026-10-20 12:07:30',
     ];
 }
+
+function escenarioConsultaEstado(): array
+{
+    return [
+        'tipo' => 'consulta_estado_pedido',
+        'origen' => 'app_movil',
+        'id_pedido' => 'FE-1001',
+        'cliente' => 'Valentina Rojas',
+        'fecha' => '2026-10-20 12:09:10',
+    ];
+}
