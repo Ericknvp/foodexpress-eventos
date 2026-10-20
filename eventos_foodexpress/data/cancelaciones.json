@@ -7,7 +7,7 @@
         "detalle": "La preparacion estaba en curso, se detiene y se libera la mesa.",
         "id_pedido": "FE-1001",
         "cliente": "Erick Narváez",
-        "registrado_en": "2026-10-20 21:18:16"
+        "registrado_en": "2026-10-20 21:18:25"
     },
     {
         "consumidor": "logistica",
@@ -17,7 +17,7 @@
         "detalle": "Repartidor Carlos Ramirez liberado, queda disponible para otro pedido.",
         "id_pedido": "FE-1001",
         "cliente": "Erick Narváez",
-        "registrado_en": "2026-10-20 21:18:16",
+        "registrado_en": "2026-10-20 21:18:25",
         "repartidor": "Carlos Ramirez"
     }
 ]

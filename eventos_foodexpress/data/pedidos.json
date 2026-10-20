@@ -7,7 +7,7 @@
         "detalle": "Comanda recibida: 2 plato(s) para preparar.",
         "id_pedido": "FE-1001",
         "cliente": "Erick Narváez",
-        "registrado_en": "2026-10-20 21:18:16"
+        "registrado_en": "2026-10-20 21:18:25"
     },
     {
         "consumidor": "logistica",
@@ -17,7 +17,7 @@
         "detalle": "Repartidor Carlos Ramirez asignado para recoger el pedido.",
         "id_pedido": "FE-1001",
         "cliente": "Erick Narváez",
-        "registrado_en": "2026-10-20 21:18:16",
+        "registrado_en": "2026-10-20 21:18:25",
         "repartidor": "Carlos Ramirez"
     }
 ]
