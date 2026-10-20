@@ -241,13 +241,14 @@ function renderResumen(array $resumen, int $eventos): void
     foreach (ARCHIVO_POR_EVENTO as $tipo => $archivo) {
         $registros = leerRegistros($tipo);
         $total += count($registros);
-        campo('data/' . $archivo, count($registros) . ' registros', 28);
+        $etiqueta = count($registros) === 1 ? ' registro' : ' registros';
+        campo('data/' . $archivo, count($registros) . $etiqueta, 28);
     }
 
     echo linea('-') . PHP_EOL;
-    campo('Eventos emitidos', (string) $eventos);
-    campo('Entregas a consumidores', (string) count($resumen));
-    campo('Registros persistidos', (string) $total);
+    dato('Eventos emitidos', (string) $eventos);
+    dato('Entregas a consumidores', (string) count($resumen));
+    dato('Registros persistidos', (string) $total);
     echo linea('=') . PHP_EOL;
 }
 
