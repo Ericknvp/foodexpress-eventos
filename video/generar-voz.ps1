@@ -138,7 +138,7 @@ for ($i = 0; $i -lt $bloques.Count; $i++) {
     $guionMd += ''
     $guionMd += ('**Locucion:** {0}' -f $b.Texto)
     $guionMd += ''
-    $guionMd += ('`{0}  ({1} s)`' -f (FormatoTiempo $b.Inicio), $b.Duracion)
+    $guionMd += ('`{0}  ({1} s)`' -f (FormatoTiempo $b.Inicio), ([string]::Format([cultureinfo]::InvariantCulture, '{0:0.0}', $b.Duracion)))
     $guionMd += ''
 }
 

@@ -2,91 +2,91 @@
 
 Locucion por bloques. Cada bloque indica que se ve en pantalla.
 
-## 1. Presentacion
+## 1. Presentación
 
-**Pantalla:** Consola web en http://localhost/PedidosComida/ con las tres zonas visibles: Escenarios, Entregas por area interna y Archivos de data/.
+**Pantalla:** Consola web en http://localhost/PedidosComida/ con las tres zonas visibles: Escenarios, Entregas por área interna y Archivos de data/.
 
-**Locucion:** FoodExpress es una plataforma de domicilios de comida. Esta consola simula su sistema de eventos: recibe pedidos de la app movil y del sitio web, y los reparte a las areas que los atienden.
+**Locucion:** FoodExpress es una plataforma de domicilios de comida. Esta consola simula su sistema de eventos: recibe pedidos de la app móvil y del sitio web, y los reparte a las áreas que los atienden.
 
-`0:00.8  (10,64 s)`
+`0:00.8  (10.7 s)`
 
-## 2. El patron productor, enrutador, consumidor
+## 2. El patrón productor, enrutador, consumidor
 
 **Pantalla:** Diagrama simple con tres flechas: productor, enrutador, consumidores. Si no hay, la carpeta eventos_foodexpress/ con sus tres archivos.
 
-**Locucion:** El sistema sigue un patron de productor, enrutador y consumidor. El productor arma el evento. El enrutador lo valida y decide a que areas lo envia. Y cada consumidor, Cocina, Logistica o Atencion al Cliente, reacciona segun su rol.
+**Locucion:** El sistema sigue un patrón de productor, enrutador y consumidor. El productor arma el evento. El enrutador lo valida y decide a qué áreas lo envía. Y cada consumidor, Cocina, Logística o Atención al Cliente, reacciona según su rol.
 
-`0:11.8  (15,13 s)`
+`0:11.8  (15.2 s)`
 
 ## 3. La evidencia queda escrita
 
 **Pantalla:** La zona Archivos de data/ con el JSON de pedidos.json.
 
-**Locucion:** Cada consumidor deja por escrito lo que hizo, en un archivo JSON. Esa es la unica fuente de verdad: la terminal y la web leen los mismos archivos.
+**Locucion:** Cada consumidor deja por escrito lo que hizo, en un archivo JSON. Esa es la única fuente de verdad: la terminal y la web leen los mismos archivos.
 
-`0:27.3  (8,79 s)`
+`0:27.3  (8.7 s)`
 
 ## 4. Ejemplo en vivo: pedido nuevo
 
-**Pantalla:** Click en Emitir en Pedido nuevo. La ficha aparece arriba en Cocina y en Logistica, y el JSON de pedidos.json crece.
+**Pantalla:** Click en Emitir en Pedido nuevo. La ficha aparece arriba en Cocina y en Logística, y el JSON de pedidos.json crece.
 
-**Locucion:** Vamos con un pedido nuevo: el 1001 de Erick Narvaez en Sabor Brasa, desde la app movil. El enrutador lo reparte a dos areas. Cocina registra que la preparacion empieza. Logistica asigna a Carlos Ramirez. Un evento, dos entregas.
+**Locucion:** Vamos con un pedido nuevo: el 1001 de Erick Narváez en Sabor Brasa, desde la app móvil. El enrutador lo reparte a dos áreas. Cocina registra que la preparación empieza. Logística asigna a Carlos Ramírez. Un evento, dos entregas.
 
-`0:36.4  (15,65 s)`
+`0:36.4  (15.4 s)`
 
-## 5. El codigo del enrutador
+## 5. El código del enrutador
 
-**Pantalla:** Editor con eventos_foodexpress/router.php. Resaltar la constante RUTAS_CONSUMIDOR y el foreach de la funcion enrutar.
+**Pantalla:** Editor con eventos_foodexpress/router.php. Resaltar la constante RUTAS_CONSUMIDOR y el foreach de la función enrutar.
 
-**Locucion:** En el codigo, el enrutador es una tabla de tres lineas que dice a que areas va cada evento, y una funcion que valida el evento antes de repartirlo.
+**Locucion:** En el código, el enrutador es una tabla de tres líneas que dice a qué áreas va cada evento, y una función que valida el evento antes de repartirlo.
 
-`0:52.4  (7,71 s)`
+`0:52.2  (7.8 s)`
 
 ## 6. El segundo escenario: cancelar
 
 **Pantalla:** Click en Emitir en Pedido cancelado. Las dos columnas se actualizan y el JSON de cancelaciones.json muestra lo escrito.
 
-**Locucion:** Ahora el mismo pedido se cancela desde el sitio web. Y aqui esta lo importante: la respuesta no esta escrita a mano, se decide con el estado real guardado en los archivos. Como la preparacion estaba en curso, Cocina la detiene. Como habia un repartidor, Logistica lo suelta.
+**Locucion:** Ahora el mismo pedido se cancela desde el sitio web. Y aquí está lo importante: la respuesta no está escrita a mano, se decide con el estado real guardado en los archivos. Como la preparación estaba en curso, Cocina la detiene. Como había un repartidor, Logística lo suelta.
 
-`1:00.5  (16,67 s)`
+`1:00.3  (16.6 s)`
 
 ## 7. El pero
 
-**Pantalla:** El boton Reiniciar datos y luego Emitir solo en Pedido cancelado, sin emitir antes el pedido nuevo. La columna de Cocina responde sin preparacion.
+**Pantalla:** El botón Reiniciar datos y luego Emitir solo en Pedido cancelado, sin emitir antes el pedido nuevo. La columna de Cocina responde sin preparación.
 
-**Locucion:** Pero si cancelaras un pedido que nunca llego a cocina, te dirian que no habia nada que detener. El mismo evento, otra respuesta.
+**Locucion:** Pero si cancelaras un pedido que nunca llegó a cocina, te dirían que no había nada que detener. El mismo evento, otra respuesta.
 
-`1:17.5  (7,76 s)`
+`1:17.3  (7.7 s)`
 
 ## 8. Consulta de estado
 
-**Pantalla:** Click en Emitir en Consulta de estado. Solo se llena la columna de Atencion al Cliente.
+**Pantalla:** Click en Emitir en Consulta de estado. Solo se llena la columna de Atención al Cliente.
 
-**Locucion:** La tercera es una consulta desde la app. Aqui el enrutador es selectivo: va a un solo consumidor. Atencion al Cliente reconstruye la trayectoria del pedido y responde con el estado real: en preparacion, en transito o cancelado.
+**Locucion:** La tercera es una consulta desde la app. Aquí el enrutador es selectivo: va a un solo consumidor. Atención al Cliente reconstruye la trayectoria del pedido y responde con el estado real: en preparación, en tránsito o cancelado.
 
-`1:25.6  (13,6 s)`
+`1:25.3  (13.6 s)`
 
-## 9. El codigo del consumidor
+## 9. El código del consumidor
 
-**Pantalla:** Editor con eventos_foodexpress/consumidor.php. Resaltar la funcion cocina() y las tres funciones de area.
+**Pantalla:** Editor con eventos_foodexpress/consumidor.php. Resaltar la función cocina() y las tres funciones de área.
 
-**Locucion:** En el consumidor esta esa logica: una funcion corta por area, que solo decide que hacer y devuelve la accion, el estado y el detalle.
+**Locucion:** En el consumidor está esa lógica: una función corta por área, que solo decide qué hacer y devuelve la acción, el estado y el detalle.
 
-`1:39.6  (7,66 s)`
+`1:39.3  (7.7 s)`
 
-## 10. Como queda escrito
+## 10. Cómo queda escrito
 
-**Pantalla:** La funcion consumir() en consumidor.php, luego el JSON con el registro escrito.
+**Pantalla:** La función consumir() en consumidor.php, luego el JSON con el registro escrito.
 
-**Locucion:** Despues, una unica funcion escribe eso en el archivo que corresponde a cada tipo de evento. Ahi queda la constancia de lo que hizo cada area.
+**Locucion:** Después, una única función escribe eso en el archivo que corresponde a cada tipo de evento. Ahí queda la constancia de lo que hizo cada área.
 
-`1:47.6  (8,2 s)`
+`1:47.3  (8.0 s)`
 
 ## 11. Terminal y cierre
 
-**Pantalla:** Terminal con php productor.php y su salida resumida. Titulo o logo de FoodExpress.
+**Pantalla:** Terminal con php productor.php y su salida resumida. Título o logo de FoodExpress.
 
-**Locucion:** Y tambien corre en la terminal: el productor reinicia los datos, emite los tres escenarios y muestra el resumen. Sin base de datos ni dependencias: solo PHP y archivos JSON. Gracias.
+**Locucion:** Y también corre en la terminal: el productor reinicia los datos, emite los tres escenarios y muestra el resumen. Sin base de datos ni dependencias: solo PHP y archivos JSON. Gracias.
 
-`1:56.1  (12,11 s)`
+`1:55.6  (12.1 s)`
 
