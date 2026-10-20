@@ -126,3 +126,39 @@ function renderResultado(array $resultado): void
     campo('detalle', envolver($resultado['detalle']));
     campo('registro', 'data/' . $resultado['archivo']);
 }
+
+function tabla(array $encabezados, array $filas): void
+{
+    $anchos = array_map('strlen', $encabezados);
+
+    foreach ($filas as $fila) {
+        foreach (array_values($fila) as $indice => $celda) {
+            $anchos[$indice] = max($anchos[$indice], strlen((string) $celda));
+        }
+    }
+
+    $componer = function (array $celdas, bool $mayusculas = false) use ($anchos): string {
+        $partes = [];
+
+        foreach (array_values($celdas) as $indice => $celda) {
+            $texto = (string) $celda;
+            $partes[] = str_pad($mayusculas ? strtoupper($texto) : $texto, $anchos[$indice]);
+        }
+
+        return ' ' . rtrim(implode('  ', $partes)) . PHP_EOL;
+    };
+
+    echo $componer($encabezados, true);
+    echo $componer(array_map(fn (int $ancho): string => str_repeat('-', $ancho), $anchos));
+
+    foreach ($filas as $fila) {
+        echo $componer($fila);
+    }
+}
+
+function reiniciarDatos(): void
+{
+    foreach (ARCHIVO_POR_EVENTO as $archivo) {
+        file_put_contents(directorioDatos() . DIRECTORY_SEPARATOR . $archivo, '[]' . PHP_EOL, LOCK_EX);
+    }
+}
