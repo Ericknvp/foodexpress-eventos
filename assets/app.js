@@ -1,9 +1,3 @@
-/*
-app.js
-Aqui se maneja el cliente de la consola web: llama a api.php, pinta las
-entregas por area interna y el JSON del archivo, y avisa del resultado.
-*/
-
 const AREAS = ['cocina', 'logistica', 'atencion_cliente'];
 const NOMBRES_AREA = {
     cocina: 'Cocina',
