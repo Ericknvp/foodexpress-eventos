@@ -231,7 +231,13 @@ function renderResumen(array $resumen, int $eventos): void
     titulo('RESUMEN DE LA CORRIDA');
     echo ' Entregas realizadas por el enrutador' . PHP_EOL;
     echo linea('-') . PHP_EOL;
-    tabla(['Escenario', 'Evento', 'Consumidor', 'Accion', 'Registro'], $resumen);
+
+    $filas = array_map(
+        fn (array $fila): array => [$fila['escenario'], $fila['evento'], $fila['consumidor'], $fila['accion']],
+        $resumen
+    );
+
+    tabla(['Escenario', 'Evento', 'Consumidor', 'Accion'], $filas);
 
     echo PHP_EOL . ' ARCHIVOS GENERADOS' . PHP_EOL;
     echo linea('-') . PHP_EOL;
@@ -242,7 +248,15 @@ function renderResumen(array $resumen, int $eventos): void
         $registros = leerRegistros($tipo);
         $total += count($registros);
         $etiqueta = count($registros) === 1 ? ' registro' : ' registros';
-        campo('data/' . $archivo, count($registros) . $etiqueta, 28);
+        $ruta = 'data/' . $archivo;
+
+        campo($ruta, count($registros) . $etiqueta, 28);
+
+        foreach ($resumen as $fila) {
+            if ($fila['archivo'] === $ruta) {
+                echo '     ' . str_pad($fila['consumidor'], 20, '.') . ' ' . $fila['accion'] . PHP_EOL;
+            }
+        }
     }
 
     echo linea('-') . PHP_EOL;
