@@ -1,3 +1,9 @@
+/*
+estilos.css
+Aqui se maneja el diseno de la consola web: paleta, tipografia y la
+composicion de las tres zonas.
+*/
+
 :root {
     --fondo: #eef1f5;
     --papel: #ffffff;
