@@ -1,1 +1,31 @@
-[]
+[
+    {
+        "consumidor": "cocina",
+        "evento": "pedido_cancelado",
+        "accion": "detener_preparacion",
+        "estado": "preparacion_detenida",
+        "detalle": "La preparacion estaba en curso, se detiene y se libera la mesa.",
+        "registrado_en": "2026-10-20 17:17:31",
+        "origen": "sitio_web",
+        "fecha": "2026-10-20 12:07:30",
+        "id_pedido": "FE-1001",
+        "cliente": "Valentina Rojas",
+        "restaurante": "SaborBrasa",
+        "motivo": "El cliente digito una direccion equivocada y cancelo desde el sitio web"
+    },
+    {
+        "consumidor": "logistica",
+        "evento": "pedido_cancelado",
+        "accion": "liberar_repartidor",
+        "estado": "repartidor_liberado",
+        "detalle": "Repartidor Carlos Ramirez liberado, queda disponible para otro pedido.",
+        "registrado_en": "2026-10-20 17:17:31",
+        "repartidor": "Carlos Ramirez",
+        "origen": "sitio_web",
+        "fecha": "2026-10-20 12:07:30",
+        "id_pedido": "FE-1001",
+        "cliente": "Valentina Rojas",
+        "restaurante": "SaborBrasa",
+        "motivo": "El cliente digito una direccion equivocada y cancelo desde el sitio web"
+    }
+]
