@@ -229,3 +229,72 @@ function logistica(array $evento): array
 
     throw new InvalidArgumentException("El consumidor de logistica no procesa el evento {$tipo}");
 }
+
+function trayectoriaPedido(string $idPedido): array
+{
+    $pasos = [];
+
+    foreach (['nuevo_pedido', 'pedido_cancelado'] as $tipo) {
+        foreach (leerRegistros($tipo) as $registro) {
+            if (($registro['id_pedido'] ?? '') === $idPedido) {
+                $pasos[] = $registro;
+            }
+        }
+    }
+
+    return $pasos;
+}
+
+function estadoPedido(string $idPedido): array
+{
+    $pasos = trayectoriaPedido($idPedido);
+
+    if ($pasos === []) {
+        return [
+            'estado' => 'desconocido',
+            'detalle' => "No se encontro ningun registro del pedido {$idPedido} en la plataforma.",
+            'pasos' => 0,
+        ];
+    }
+
+    $creacion = null;
+    $cancelacion = null;
+    $repartidor = null;
+
+    foreach ($pasos as $paso) {
+        if ($paso['evento'] === 'nuevo_pedido' && $paso['consumidor'] === 'cocina') {
+            $creacion = $paso;
+        }
+
+        if ($paso['evento'] === 'nuevo_pedido' && $paso['consumidor'] === 'logistica') {
+            $repartidor = $paso['repartidor'] ?? null;
+        }
+
+        if ($paso['evento'] === 'pedido_cancelado') {
+            $cancelacion = $paso;
+        }
+    }
+
+    if ($cancelacion !== null) {
+        return [
+            'estado' => 'cancelado',
+            'detalle' => "El pedido {$idPedido} quedo cancelado desde el sitio web. Motivo: {$cancelacion['motivo']}. "
+                . 'La preparacion se detuvo y el repartidor fue liberado, por lo que no habra entrega.',
+            'pasos' => count($pasos),
+        ];
+    }
+
+    if ($repartidor !== null) {
+        return [
+            'estado' => 'en_transito',
+            'detalle' => "El pedido {$idPedido} esta en camino con el repartidor {$repartidor}.",
+            'pasos' => count($pasos),
+        ];
+    }
+
+    return [
+        'estado' => 'en_preparacion',
+        'detalle' => "El pedido {$idPedido} esta en preparacion en la cocina de {$creacion['restaurante']}.",
+        'pasos' => count($pasos),
+    ];
+}
