@@ -57,9 +57,8 @@ function nombreArchivoDe(tipo) {
 function construirFicha(registro, animar) {
     const ficha = crearElemento('li', 'ficha');
 
-    const accion = crearElemento('p', 'ficha-accion', registro.accion);
-    accion.appendChild(crearElemento('span', 'ficha-evento', registro.evento));
-    ficha.appendChild(accion);
+    ficha.appendChild(crearElemento('p', 'ficha-evento', registro.evento));
+    ficha.appendChild(crearElemento('p', 'ficha-accion', registro.accion));
 
     const estado = crearElemento('p', 'ficha-estado', registro.estado);
 
