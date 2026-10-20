@@ -33,3 +33,32 @@ function rutaArchivo(string $tipo): string
 
     return directorioDatos() . DIRECTORY_SEPARATOR . ARCHIVO_POR_EVENTO[$tipo];
 }
+
+function leerRegistros(string $tipo): array
+{
+    $ruta = rutaArchivo($tipo);
+
+    if (!is_file($ruta)) {
+        return [];
+    }
+
+    $contenido = file_get_contents($ruta);
+
+    if ($contenido === false || trim($contenido) === '') {
+        return [];
+    }
+
+    $datos = json_decode($contenido, true);
+
+    return is_array($datos) ? $datos : [];
+}
+
+function escribirRegistros(string $tipo, array $registros): void
+{
+    $json = json_encode(
+        array_values($registros),
+        JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+    );
+
+    file_put_contents(rutaArchivo($tipo), $json . PHP_EOL, LOCK_EX);
+}
