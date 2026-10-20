@@ -14,11 +14,7 @@ const NOMBRE_CONSUMIDOR = [
     'atencion_cliente' => 'Atencion al Cliente',
 ];
 
-const CAMPOS_POR_EVENTO = [
-    'nuevo_pedido' => ['origen', 'fecha', 'id_pedido', 'cliente', 'restaurante', 'items', 'total'],
-    'pedido_cancelado' => ['origen', 'fecha', 'id_pedido', 'cliente', 'restaurante', 'motivo'],
-    'consulta_estado_pedido' => ['origen', 'fecha', 'id_pedido', 'cliente'],
-];
+const REPARTIDORES = ['Carlos Ramirez', 'Daniela Ortiz', 'Andres Molina'];
 
 function directorioDatos(): string
 {
@@ -27,10 +23,6 @@ function directorioDatos(): string
 
 function rutaArchivo(string $tipo): string
 {
-    if (!array_key_exists($tipo, ARCHIVO_POR_EVENTO)) {
-        throw new InvalidArgumentException("Tipo de evento sin archivo asignado: {$tipo}");
-    }
-
     return directorioDatos() . DIRECTORY_SEPARATOR . ARCHIVO_POR_EVENTO[$tipo];
 }
 
@@ -42,13 +34,7 @@ function leerRegistros(string $tipo): array
         return [];
     }
 
-    $contenido = file_get_contents($ruta);
-
-    if ($contenido === false || trim($contenido) === '') {
-        return [];
-    }
-
-    $datos = json_decode($contenido, true);
+    $datos = json_decode((string) file_get_contents($ruta), true);
 
     return is_array($datos) ? $datos : [];
 }
@@ -63,32 +49,27 @@ function escribirRegistros(string $tipo, array $registros): void
     file_put_contents(rutaArchivo($tipo), $json . PHP_EOL, LOCK_EX);
 }
 
-function camposDelEvento(string $tipo, array $evento): array
-{
-    $campos = [];
-
-    foreach (CAMPOS_POR_EVENTO[$tipo] as $campo) {
-        if (array_key_exists($campo, $evento)) {
-            $campos[$campo] = $evento[$campo];
-        }
-    }
-
-    return $campos;
-}
-
-function registrarAccion(string $tipo, string $consumidor, array $evento, array $accion): array
-{
+function registrarAccion(
+    string $tipo,
+    string $area,
+    array $evento,
+    string $accion,
+    string $estado,
+    string $detalle,
+    array $extra = []
+): array {
     $registro = array_merge(
         [
-            'consumidor' => $consumidor,
+            'consumidor' => $area,
             'evento' => $tipo,
-            'accion' => $accion['accion'],
-            'estado' => $accion['estado'],
-            'detalle' => $accion['detalle'],
+            'accion' => $accion,
+            'estado' => $estado,
+            'detalle' => $detalle,
+            'id_pedido' => $evento['id_pedido'] ?? '',
+            'cliente' => $evento['cliente'] ?? '',
             'registrado_en' => date('Y-m-d H:i:s'),
         ],
-        $accion['campos'] ?? [],
-        camposDelEvento($tipo, $evento)
+        $extra
     );
 
     $registros = leerRegistros($tipo);
@@ -98,85 +79,46 @@ function registrarAccion(string $tipo, string $consumidor, array $evento, array 
     return $registro;
 }
 
-function estadoPreparacion(string $idPedido): string
+function pedidoExiste(string $idPedido): bool
 {
-    $estado = 'sin_preparacion';
-
-    foreach (['nuevo_pedido', 'pedido_cancelado'] as $tipo) {
-        foreach (leerRegistros($tipo) as $registro) {
-            if (($registro['consumidor'] ?? '') === 'cocina' && ($registro['id_pedido'] ?? '') === $idPedido) {
-                $estado = $registro['estado'];
-            }
+    foreach (leerRegistros('nuevo_pedido') as $registro) {
+        if (($registro['id_pedido'] ?? '') === $idPedido) {
+            return true;
         }
     }
 
-    return $estado;
+    return false;
 }
 
-function cocina(array $evento): array
+function pedidoCancelado(string $idPedido): bool
 {
-    $tipo = $evento['tipo'];
-
-    if ($tipo === 'nuevo_pedido') {
-        $cantidad = count($evento['items'] ?? []);
-
-        return registrarAccion($tipo, 'cocina', $evento, [
-            'accion' => 'inicio_preparacion',
-            'estado' => 'preparacion_en_curso',
-            'detalle' => "Comanda recibida en cocina: {$cantidad} plato(s) para preparar.",
-        ]);
-    }
-
-    if ($tipo === 'pedido_cancelado') {
-        $estadoActual = estadoPreparacion($evento['id_pedido']);
-
-        if ($estadoActual === 'preparacion_en_curso') {
-            $accion = 'detener_preparacion';
-            $estado = 'preparacion_detenida';
-            $detalle = 'La preparacion estaba en curso, se detiene y se libera la mesa.';
-        } elseif ($estadoActual === 'preparacion_detenida') {
-            $accion = 'cancelacion_ya_procesada';
-            $estado = 'preparacion_detenida';
-            $detalle = 'El pedido ya estaba cancelado, la preparacion sigue detenida.';
-        } elseif ($estadoActual === 'plato_listo') {
-            $accion = 'cancelacion_no_posible';
-            $estado = 'preparacion_completada';
-            $detalle = 'El plato ya estaba listo, la cancelacion no aplica sobre la preparacion.';
-        } else {
-            $accion = 'sin_preparacion_para_cancelar';
-            $estado = 'sin_preparacion';
-            $detalle = 'No habia preparacion activa para este pedido, no hay nada que detener.';
+    foreach (leerRegistros('pedido_cancelado') as $registro) {
+        if (($registro['id_pedido'] ?? '') === $idPedido) {
+            return true;
         }
-
-        return registrarAccion($tipo, 'cocina', $evento, [
-            'accion' => $accion,
-            'estado' => $estado,
-            'detalle' => $detalle,
-        ]);
     }
 
-    throw new InvalidArgumentException("El consumidor de cocina no procesa el evento {$tipo}");
+    return false;
 }
 
-const REPARTIDORES = [
-    'Carlos Ramirez',
-    'Daniela Ortiz',
-    'Andres Molina',
-];
+function repartidorDe(string $idPedido): ?string
+{
+    foreach (leerRegistros('nuevo_pedido') as $registro) {
+        if (($registro['consumidor'] ?? '') === 'logistica' && ($registro['id_pedido'] ?? '') === $idPedido) {
+            return $registro['repartidor'] ?? null;
+        }
+    }
+
+    return null;
+}
 
 function siguienteRepartidor(): string
 {
     $ocupados = [];
 
     foreach (leerRegistros('nuevo_pedido') as $registro) {
-        if (($registro['consumidor'] ?? '') === 'logistica' && isset($registro['repartidor'])) {
+        if (($registro['consumidor'] ?? '') === 'logistica' && !empty($registro['repartidor'])) {
             $ocupados[$registro['repartidor']] = true;
-        }
-    }
-
-    foreach (leerRegistros('pedido_cancelado') as $registro) {
-        if (($registro['consumidor'] ?? '') === 'logistica' && ($registro['estado'] ?? '') === 'repartidor_liberado') {
-            unset($ocupados[$registro['repartidor']]);
         }
     }
 
@@ -186,14 +128,45 @@ function siguienteRepartidor(): string
         }
     }
 
-    return REPARTIDORES[count(REPARTIDORES) - 1];
+    return REPARTIDORES[count($ocupados) % count(REPARTIDORES)];
 }
 
-function repartidorAsignado(string $idPedido): ?string
+function cocina(array $evento): array
 {
-    $interno = estadoInternoPedido($idPedido);
+    $tipo = $evento['tipo'];
 
-    return $interno['repartidor'];
+    if ($tipo === 'nuevo_pedido') {
+        $platos = count($evento['items'] ?? []);
+
+        return registrarAccion(
+            $tipo,
+            'cocina',
+            $evento,
+            'inicio_preparacion',
+            'preparacion_en_curso',
+            "Comanda recibida: {$platos} plato(s) para preparar."
+        );
+    }
+
+    if (!pedidoExiste($evento['id_pedido'])) {
+        return registrarAccion(
+            $tipo,
+            'cocina',
+            $evento,
+            'sin_preparacion',
+            'sin_preparacion',
+            'No habia preparacion activa para ese pedido.'
+        );
+    }
+
+    return registrarAccion(
+        $tipo,
+        'cocina',
+        $evento,
+        'detener_preparacion',
+        'preparacion_detenida',
+        'La preparacion estaba en curso, se detiene y se libera la mesa.'
+    );
 }
 
 function logistica(array $evento): array
@@ -203,175 +176,74 @@ function logistica(array $evento): array
     if ($tipo === 'nuevo_pedido') {
         $repartidor = siguienteRepartidor();
 
-        return registrarAccion($tipo, 'logistica', $evento, [
-            'accion' => 'asignar_repartidor',
-            'estado' => 'repartidor_asignado',
-            'detalle' => "Repartidor {$repartidor} asignado para recoger el pedido en {$evento['restaurante']}.",
-            'campos' => ['repartidor' => $repartidor],
-        ]);
+        return registrarAccion(
+            $tipo,
+            'logistica',
+            $evento,
+            'asignar_repartidor',
+            'repartidor_asignado',
+            "Repartidor {$repartidor} asignado para recoger el pedido.",
+            ['repartidor' => $repartidor]
+        );
     }
 
-    if ($tipo === 'pedido_cancelado') {
-        $interno = estadoInternoPedido($evento['id_pedido']);
-        $repartidor = $interno['repartidor'];
+    $repartidor = repartidorDe($evento['id_pedido']);
 
-        if ($repartidor !== null) {
-            $accion = 'liberar_repartidor';
-            $estado = 'repartidor_liberado';
-            $detalle = "Repartidor {$repartidor} liberado, queda disponible para otro pedido.";
-            $campos = ['repartidor' => $repartidor];
-        } elseif ($interno['repartidor_liberado']) {
-            $accion = 'repartidor_ya_liberado';
-            $estado = 'repartidor_liberado';
-            $detalle = 'El repartidor de este pedido ya estaba liberado, no hay nada mas que liberar.';
-            $campos = [];
-        } else {
-            $accion = 'sin_repartidor_para_liberar';
-            $estado = 'sin_repartidor_asignado';
-            $detalle = 'No habia repartidor asignado para este pedido, no hay nada que liberar.';
-            $campos = [];
-        }
-
-        return registrarAccion($tipo, 'logistica', $evento, [
-            'accion' => $accion,
-            'estado' => $estado,
-            'detalle' => $detalle,
-            'campos' => $campos,
-        ]);
+    if ($repartidor === null) {
+        return registrarAccion(
+            $tipo,
+            'logistica',
+            $evento,
+            'sin_repartidor',
+            'sin_repartidor_asignado',
+            'No habia repartidor asignado para ese pedido.'
+        );
     }
 
-    throw new InvalidArgumentException("El consumidor de logistica no procesa el evento {$tipo}");
-}
-
-function trayectoriaPedido(string $idPedido): array
-{
-    $pasos = [];
-
-    foreach (['nuevo_pedido', 'pedido_cancelado'] as $tipo) {
-        foreach (leerRegistros($tipo) as $registro) {
-            if (($registro['id_pedido'] ?? '') === $idPedido) {
-                $pasos[] = $registro;
-            }
-        }
-    }
-
-    return $pasos;
-}
-
-function estadoPedido(string $idPedido): array
-{
-    $pasos = trayectoriaPedido($idPedido);
-
-    if ($pasos === []) {
-        return [
-            'estado' => 'desconocido',
-            'detalle' => "No se encontro ningun registro del pedido {$idPedido} en la plataforma.",
-            'pasos' => 0,
-        ];
-    }
-
-    $creacion = null;
-    $cancelacion = null;
-    $repartidor = null;
-
-    foreach ($pasos as $paso) {
-        if ($paso['evento'] === 'nuevo_pedido' && $paso['consumidor'] === 'cocina') {
-            $creacion = $paso;
-        }
-
-        if ($paso['evento'] === 'nuevo_pedido' && $paso['consumidor'] === 'logistica') {
-            $repartidor = $paso['repartidor'] ?? null;
-        }
-
-        if ($paso['evento'] === 'pedido_cancelado') {
-            $cancelacion = $paso;
-        }
-    }
-
-    if ($cancelacion !== null) {
-        return [
-            'estado' => 'cancelado',
-            'detalle' => "El pedido {$idPedido} quedo cancelado desde el sitio web. Motivo: {$cancelacion['motivo']}. "
-                . 'La preparacion se detuvo y el repartidor fue liberado, por lo que no habra entrega.',
-            'pasos' => count($pasos),
-        ];
-    }
-
-    if ($repartidor !== null) {
-        return [
-            'estado' => 'en_transito',
-            'detalle' => "El pedido {$idPedido} esta en camino con el repartidor {$repartidor}.",
-            'pasos' => count($pasos),
-        ];
-    }
-
-    return [
-        'estado' => 'en_preparacion',
-        'detalle' => "El pedido {$idPedido} esta en preparacion en la cocina de {$creacion['restaurante']}.",
-        'pasos' => count($pasos),
-    ];
+    return registrarAccion(
+        $tipo,
+        'logistica',
+        $evento,
+        'liberar_repartidor',
+        'repartidor_liberado',
+        "Repartidor {$repartidor} liberado, queda disponible para otro pedido.",
+        ['repartidor' => $repartidor]
+    );
 }
 
 function atencionCliente(array $evento): array
 {
     $tipo = $evento['tipo'];
+    $idPedido = $evento['id_pedido'];
 
-    if ($tipo !== 'consulta_estado_pedido') {
-        throw new InvalidArgumentException("El consumidor de atencion al cliente no procesa el evento {$tipo}");
+    if (!pedidoExiste($idPedido)) {
+        return registrarAccion(
+            $tipo,
+            'atencion_cliente',
+            $evento,
+            'responder_estado',
+            'desconocido',
+            "No hay registro del pedido {$idPedido} en la plataforma."
+        );
     }
 
-    $estado = estadoPedido($evento['id_pedido']);
-
-    return registrarAccion($tipo, 'atencion_cliente', $evento, [
-        'accion' => 'responder_estado_pedido',
-        'estado' => $estado['estado'],
-        'detalle' => $estado['detalle'],
-        'campos' => ['pasos_consultados' => $estado['pasos']],
-    ]);
-}
-
-function estadoInternoPedido(string $idPedido): array
-{
-    $preparacion = 'sin_preparacion';
-    $repartidor = null;
-    $repartidorLiberado = false;
-    $cancelado = false;
-
-    foreach (leerRegistros('nuevo_pedido') as $registro) {
-        if (($registro['id_pedido'] ?? '') !== $idPedido) {
-            continue;
-        }
-
-        if ($registro['consumidor'] === 'cocina') {
-            $preparacion = $registro['estado'];
-        }
-
-        if ($registro['consumidor'] === 'logistica') {
-            $repartidor = $registro['repartidor'] ?? null;
-        }
+    if (pedidoCancelado($idPedido)) {
+        return registrarAccion(
+            $tipo,
+            'atencion_cliente',
+            $evento,
+            'responder_estado',
+            'cancelado',
+            "El pedido {$idPedido} quedo cancelado desde el sitio web."
+        );
     }
 
-    foreach (leerRegistros('pedido_cancelado') as $registro) {
-        if (($registro['id_pedido'] ?? '') !== $idPedido) {
-            continue;
-        }
-
-        $cancelado = true;
-
-        if ($registro['consumidor'] === 'cocina') {
-            $preparacion = $registro['estado'];
-        }
-
-        if ($registro['consumidor'] === 'logistica' && $registro['estado'] === 'repartidor_liberado') {
-            $repartidorLiberado = true;
-            $repartidor = null;
-        }
-    }
-
-    return [
-        'preparacion' => $preparacion,
-        'repartidor' => $repartidor,
-        'repartidor_liberado' => $repartidorLiberado,
-        'cancelado' => $cancelado,
-    ];
+    return registrarAccion(
+        $tipo,
+        'atencion_cliente',
+        $evento,
+        'responder_estado',
+        'en_preparacion',
+        "El pedido {$idPedido} esta en preparacion en la cocina."
+    );
 }
