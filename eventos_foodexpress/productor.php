@@ -185,10 +185,10 @@ function ejecutar(): void
     echo linea('=') . PHP_EOL;
 
     seccion('PREPARACION DE LA SIMULACION');
-    campo('Modo', 'simulacion reproducible');
-    campo('Origenes', 'app movil y sitio web');
-    campo('Archivos', 'data/pedidos.json, data/cancelaciones.json, data/consultas_estado.json');
-    campo('Estado', 'los tres archivos se reinician vacios antes de emitir los eventos');
+    dato('Modo', 'simulacion reproducible');
+    dato('Origenes', 'app movil y sitio web');
+    dato('Archivos', 'data/pedidos.json, data/cancelaciones.json, data/consultas_estado.json');
+    dato('Estado', 'los tres archivos se reinician vacios antes de emitir los eventos');
 
     reiniciarDatos();
 
