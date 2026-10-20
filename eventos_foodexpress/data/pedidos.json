@@ -1,1 +1,55 @@
-[]
+[
+    {
+        "consumidor": "cocina",
+        "evento": "nuevo_pedido",
+        "accion": "inicio_preparacion",
+        "estado": "preparacion_en_curso",
+        "detalle": "Comanda recibida en cocina: 2 plato(s) para preparar.",
+        "registrado_en": "2026-10-20 15:49:03",
+        "origen": "app_movil",
+        "fecha": "2026-10-20 12:05:00",
+        "id_pedido": "FE-1001",
+        "cliente": "Valentina Rojas",
+        "restaurante": "SaborBrasa",
+        "items": [
+            {
+                "plato": "Bandeja paisa",
+                "cantidad": 2,
+                "precio": 18500
+            },
+            {
+                "plato": "Jugo de mango",
+                "cantidad": 1,
+                "precio": 7000
+            }
+        ],
+        "total": 44000
+    },
+    {
+        "consumidor": "logistica",
+        "evento": "nuevo_pedido",
+        "accion": "asignar_repartidor",
+        "estado": "repartidor_asignado",
+        "detalle": "Repartidor Carlos Ramirez asignado para recoger el pedido en SaborBrasa.",
+        "registrado_en": "2026-10-20 15:49:03",
+        "repartidor": "Carlos Ramirez",
+        "origen": "app_movil",
+        "fecha": "2026-10-20 12:05:00",
+        "id_pedido": "FE-1001",
+        "cliente": "Valentina Rojas",
+        "restaurante": "SaborBrasa",
+        "items": [
+            {
+                "plato": "Bandeja paisa",
+                "cantidad": 2,
+                "precio": 18500
+            },
+            {
+                "plato": "Jugo de mango",
+                "cantidad": 1,
+                "precio": 7000
+            }
+        ],
+        "total": 44000
+    }
+]
