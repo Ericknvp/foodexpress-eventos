@@ -1,11 +1,5 @@
 <?php
 
-/*
-index.php
-Aqui se maneja la pagina de la consola web: muestra los escenarios que se
-pueden emitir, las entregas por area interna y el JSON del archivo elegido.
-*/
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/datos.php';
