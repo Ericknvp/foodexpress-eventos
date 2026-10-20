@@ -248,3 +248,85 @@ table {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
 }
+
+.banco {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr) 360px;
+    gap: 16px;
+    padding: 16px;
+    height: calc(100vh - 57px);
+}
+
+.zona {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+}
+
+.zona-titulo {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tinta);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--linea);
+}
+
+.zona-nota {
+    font-size: 12.5px;
+    color: var(--tinta-3);
+    margin-top: -4px;
+    margin-bottom: 12px;
+}
+
+.boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border: 1px solid transparent;
+    border-radius: var(--radio);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.boton--primario {
+    background: var(--carrier);
+    color: #ffffff;
+}
+
+.boton--primario:hover {
+    background: #16405f;
+}
+
+.boton--primario:active {
+    transform: translateY(1px);
+}
+
+.boton--primario[disabled] {
+    background: var(--linea-fuerte);
+    color: #ffffff;
+    cursor: progress;
+}
+
+.boton--secundario {
+    background: var(--papel);
+    border-color: var(--linea-fuerte);
+    color: var(--tinta-2);
+    font-weight: 500;
+}
+
+.boton--secundario:hover {
+    border-color: var(--carrier);
+    color: var(--carrier);
+}
+
+.boton--secundario[disabled] {
+    opacity: 0.55;
+    cursor: progress;
+}
