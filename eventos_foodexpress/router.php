@@ -21,3 +21,27 @@ const CAMPOS_OBLIGATORIOS = [
     'pedido_cancelado' => ['id_pedido', 'cliente', 'restaurante', 'motivo'],
     'consulta_estado_pedido' => ['cliente', 'id_pedido'],
 ];
+
+function clasificarEvento(array $evento): string
+{
+    $tipo = $evento['tipo'] ?? '';
+
+    if (!array_key_exists($tipo, RUTAS_CONSUMIDOR)) {
+        throw new InvalidArgumentException("Tipo de evento no soportado por el enrutador: {$tipo}");
+    }
+
+    return $tipo;
+}
+
+function camposFaltantes(string $tipo, array $evento): array
+{
+    $faltantes = [];
+
+    foreach (CAMPOS_OBLIGATORIOS[$tipo] as $campo) {
+        if (!array_key_exists($campo, $evento) || $evento[$campo] === '' || $evento[$campo] === []) {
+            $faltantes[] = $campo;
+        }
+    }
+
+    return $faltantes;
+}
