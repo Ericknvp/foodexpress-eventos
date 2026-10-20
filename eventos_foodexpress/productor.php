@@ -1,12 +1,5 @@
 <?php
 
-/*
-productor.php
-Aqui se maneja el productor: arma los tres eventos del taller y los entrega
-al enrutador. En la linea de comandos corre la simulacion completa e imprime
-la salida; desde la consola web se usan solo sus funciones de escenario.
-*/
-
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'router.php';
