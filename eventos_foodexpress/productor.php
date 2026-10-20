@@ -93,3 +93,27 @@ function renderItems(array $items): void
             . ' = ' . dinero($subtotal) . PHP_EOL;
     }
 }
+
+function renderEvento(array $evento): void
+{
+    campo('Evento', $evento['tipo']);
+    campo('Canal', $evento['origen']);
+    campo('Fecha', $evento['fecha']);
+    campo('id_pedido', $evento['id_pedido']);
+    campo('cliente', $evento['cliente']);
+
+    if ($evento['tipo'] === 'nuevo_pedido') {
+        campo('restaurante', $evento['restaurante']);
+        renderItems($evento['items']);
+        campo('total', dinero((int) $evento['total']));
+
+        return;
+    }
+
+    if ($evento['tipo'] === 'pedido_cancelado') {
+        campo('restaurante', $evento['restaurante']);
+        campo('motivo', envolver($evento['motivo']));
+
+        return;
+    }
+}
