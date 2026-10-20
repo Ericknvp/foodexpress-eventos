@@ -9,6 +9,7 @@ const elementos = {
     cifraEntregas: document.getElementById('cifra-entregas'),
     cuerpoTabla: document.getElementById('cuerpo-tabla'),
     jsonBruto: document.getElementById('json-bruto'),
+    rutaArchivo: document.getElementById('ruta-archivo'),
     pestanas: Array.from(document.querySelectorAll('.pestana')),
 };
 
@@ -146,10 +147,10 @@ function poblarTabla(archivos) {
             fila.appendChild(consumidor);
             fila.appendChild(crearElemento('td', 'celda-mono', registro.accion));
 
-            const estado = crearElemento('td', 'celda-mono');
+            const estado = crearElemento('td', 'celda-estado');
             estado.appendChild(crearElemento('strong', null, registro.estado));
             estado.appendChild(crearElemento('br'));
-            estado.appendChild(crearElemento('span', null, registro.registrado_en));
+            estado.appendChild(crearElemento('span', 'celda-hora', registro.registrado_en));
             fila.appendChild(estado);
 
             elementos.cuerpoTabla.appendChild(fila);
@@ -157,6 +158,7 @@ function poblarTabla(archivos) {
     }
 
     elementos.jsonBruto.textContent = JSON.stringify(archivo.registros, null, 2);
+    elementos.rutaArchivo.textContent = archivo.archivo;
 }
 
 function pintarFranja(canal, areas) {

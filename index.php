@@ -98,18 +98,19 @@ $areas = [
             <?php foreach ($archivos as $indice => $archivo): ?>
                 <button type="button" class="pestana" role="tab" id="pestana-<?= $indice ?>"
                         aria-controls="panel-archivo" aria-selected="<?= $indice === 0 ? 'true' : 'false' ?>"
-                        data-archivo="<?= $archivo['tipo'] ?>"><?= $archivo['nombre'] ?></button>
+                        data-archivo="<?= $archivo['tipo'] ?>"><?= pathinfo($archivo['nombre'], PATHINFO_FILENAME) ?></button>
             <?php endforeach; ?>
         </div>
 
         <div class="inspector-cuerpo">
             <div class="tabla-contenedor" id="panel-archivo" role="tabpanel" aria-labelledby="pestana-0">
+                <p class="ruta-archivo mono" id="ruta-archivo">data/pedidos.json</p>
                 <table class="tabla">
                     <thead>
                     <tr>
                         <th scope="col">Consumidor</th>
                         <th scope="col">Accion</th>
-                        <th scope="col">Estado y registro</th>
+                        <th scope="col">Estado</th>
                     </tr>
                     </thead>
                     <tbody id="cuerpo-tabla"></tbody>
