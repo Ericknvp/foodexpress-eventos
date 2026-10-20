@@ -1,12 +1,5 @@
 <?php
 
-/*
-datos.php
-Aqui se manejan los datos compartidos de la consola web: los tres escenarios
-con sus campos, el mapa de rutas del enrutador y la lectura de los archivos
-JSON de data/.
-*/
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/eventos_foodexpress/productor.php';
