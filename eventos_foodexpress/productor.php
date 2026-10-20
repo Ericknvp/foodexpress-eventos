@@ -90,9 +90,9 @@ function renderItems(array $items): void
         $subtotal = $item['cantidad'] * $item['precio'];
         $etiqueta = ($indice + 1) . '. ' . $item['plato'];
 
-        echo '   ' . str_pad($etiqueta, 30, '.') . ' '
-            . $item['cantidad'] . ' x ' . str_pad(dinero($item['precio']), 12, ' ', STR_PAD_LEFT)
-            . ' = ' . dinero($subtotal) . PHP_EOL;
+        echo '   ' . str_pad($etiqueta, 26, '.') . ' '
+            . $item['cantidad'] . ' x ' . dinero($item['precio'])
+            . ' = ' . str_pad(dinero($subtotal), 11, ' ', STR_PAD_LEFT) . PHP_EOL;
     }
 }
 
