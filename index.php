@@ -59,7 +59,6 @@ $rutas = rutasDeConsumidor();
             <?php foreach (AREAS_CONSUMIDOR as $clave => $nombre): ?>
                 <section class="area area--<?= $clave ?>" data-area="<?= $clave ?>">
                     <header class="area-cabecera">
-                        <span class="punto" aria-hidden="true"></span>
                         <h3><?= $nombre ?></h3>
                         <span class="conteo" data-conteo="<?= $clave ?>">0</span>
                     </header>
