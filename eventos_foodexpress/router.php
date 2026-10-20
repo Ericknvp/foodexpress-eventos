@@ -45,3 +45,49 @@ function camposFaltantes(string $tipo, array $evento): array
 
     return $faltantes;
 }
+
+function descripcionRuta(string $tipo): string
+{
+    $destinos = array_map(
+        fn (string $destino): string => NOMBRE_CONSUMIDOR[$destino],
+        RUTAS_CONSUMIDOR[$tipo]
+    );
+
+    return $tipo . ' -> ' . implode(', ', $destinos);
+}
+
+function enrutar(array $evento): array
+{
+    $tipo = clasificarEvento($evento);
+    $faltantes = camposFaltantes($tipo, $evento);
+
+    if ($faltantes !== []) {
+        throw new InvalidArgumentException(
+            "El evento {$tipo} esta incompleto, faltan los campos: " . implode(', ', $faltantes)
+        );
+    }
+
+    $resultados = [];
+
+    foreach (RUTAS_CONSUMIDOR[$tipo] as $destino) {
+        $funcion = FUNCION_CONSUMIDOR[$destino];
+        $registro = $funcion($evento);
+
+        $resultados[] = [
+            'consumidor' => $destino,
+            'nombre' => NOMBRE_CONSUMIDOR[$destino],
+            'accion' => $registro['accion'],
+            'estado' => $registro['estado'],
+            'detalle' => $registro['detalle'],
+            'archivo' => ARCHIVO_POR_EVENTO[$tipo],
+        ];
+    }
+
+    return [
+        'tipo' => $tipo,
+        'origen' => $evento['origen'] ?? 'desconocido',
+        'ruta' => descripcionRuta($tipo),
+        'destinos' => RUTAS_CONSUMIDOR[$tipo],
+        'resultados' => $resultados,
+    ];
+}
