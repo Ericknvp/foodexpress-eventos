@@ -47,7 +47,7 @@ function valorCampo(string $campo, $valor): string
 
     <div class="corrida">
         <div class="corrida-cifras">
-            <span><b id="cifra-eventos">0</b> eventos</span>
+            <span><b id="cifra-eventos">0</b> tipos de evento</span>
             <span><b id="cifra-entregas">0</b> entregas</span>
         </div>
         <button type="button" class="boton boton--secundario" id="reiniciar">Reiniciar datos</button>
