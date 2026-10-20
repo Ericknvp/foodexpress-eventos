@@ -62,3 +62,38 @@ function escribirRegistros(string $tipo, array $registros): void
 
     file_put_contents(rutaArchivo($tipo), $json . PHP_EOL, LOCK_EX);
 }
+
+function camposDelEvento(string $tipo, array $evento): array
+{
+    $campos = [];
+
+    foreach (CAMPOS_POR_EVENTO[$tipo] as $campo) {
+        if (array_key_exists($campo, $evento)) {
+            $campos[$campo] = $evento[$campo];
+        }
+    }
+
+    return $campos;
+}
+
+function registrarAccion(string $tipo, string $consumidor, array $evento, array $accion): array
+{
+    $registro = array_merge(
+        [
+            'consumidor' => $consumidor,
+            'evento' => $tipo,
+            'accion' => $accion['accion'],
+            'estado' => $accion['estado'],
+            'detalle' => $accion['detalle'],
+            'registrado_en' => date('Y-m-d H:i:s'),
+        ],
+        $accion['campos'] ?? [],
+        camposDelEvento($tipo, $evento)
+    );
+
+    $registros = leerRegistros($tipo);
+    $registros[] = $registro;
+    escribirRegistros($tipo, $registros);
+
+    return $registro;
+}
