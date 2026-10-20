@@ -5,13 +5,9 @@
         "accion": "detener_preparacion",
         "estado": "preparacion_detenida",
         "detalle": "La preparacion estaba en curso, se detiene y se libera la mesa.",
-        "registrado_en": "2026-10-20 19:23:43",
-        "origen": "sitio_web",
-        "fecha": "2026-10-20 12:07:30",
         "id_pedido": "FE-1001",
         "cliente": "Erick Narváez",
-        "restaurante": "SaborBrasa",
-        "motivo": "El cliente digito una direccion equivocada y cancelo desde el sitio web"
+        "registrado_en": "2026-10-20 21:18:16"
     },
     {
         "consumidor": "logistica",
@@ -19,13 +15,9 @@
         "accion": "liberar_repartidor",
         "estado": "repartidor_liberado",
         "detalle": "Repartidor Carlos Ramirez liberado, queda disponible para otro pedido.",
-        "registrado_en": "2026-10-20 19:23:43",
-        "repartidor": "Carlos Ramirez",
-        "origen": "sitio_web",
-        "fecha": "2026-10-20 12:07:30",
         "id_pedido": "FE-1001",
         "cliente": "Erick Narváez",
-        "restaurante": "SaborBrasa",
-        "motivo": "El cliente digito una direccion equivocada y cancelo desde el sitio web"
+        "registrado_en": "2026-10-20 21:18:16",
+        "repartidor": "Carlos Ramirez"
     }
 ]
