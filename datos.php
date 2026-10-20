@@ -20,34 +20,29 @@ const ESCENARIOS = [
         'nombre' => 'Pedido nuevo',
         'canal' => 'app_movil',
         'descripcion' => 'Cocina inicia la preparación y logística asigna un repartidor.',
-        'evento' => 'escenarioPedidoNuevo',
     ],
     'pedido_cancelado' => [
         'nombre' => 'Pedido cancelado',
         'canal' => 'sitio_web',
         'descripcion' => 'Cocina detiene la preparación y logística libera al repartidor.',
-        'evento' => 'escenarioPedidoCancelado',
     ],
     'consulta_estado_pedido' => [
         'nombre' => 'Consulta de estado',
         'canal' => 'app_movil',
-        'descripcion' => 'Solo atención al cliente responde, con la trayectoria real del pedido.',
-        'evento' => 'escenarioConsultaEstado',
+        'descripcion' => 'Solo atención al cliente responde, con el estado real del pedido.',
     ],
 ];
 
 function escenariosDisponibles(): array
 {
+    $eventos = escenarios();
     $escenarios = [];
 
     foreach (ESCENARIOS as $clave => $definicion) {
-        $escenarios[$clave] = [
+        $escenarios[$clave] = array_merge($definicion, [
             'clave' => $clave,
-            'nombre' => $definicion['nombre'],
-            'canal' => $definicion['canal'],
-            'descripcion' => $definicion['descripcion'],
-            'evento' => $definicion['evento'](),
-        ];
+            'evento' => $eventos[$clave],
+        ]);
     }
 
     return $escenarios;
@@ -57,11 +52,8 @@ function rutasDeConsumidor(): array
 {
     $rutas = [];
 
-    foreach (RUTAS_CONSUMIDOR as $tipo => $destinos) {
-        $rutas[$tipo] = array_map(
-            fn (string $destino): string => AREAS_CONSUMIDOR[$destino] ?? $destino,
-            $destinos
-        );
+    foreach (RUTAS_CONSUMIDOR as $tipo => $areas) {
+        $rutas[$tipo] = array_map(fn (string $area): string => AREAS_CONSUMIDOR[$area] ?? $area, $areas);
     }
 
     return $rutas;
@@ -71,13 +63,12 @@ function estadoDeArchivos(): array
 {
     $archivos = [];
 
-    foreach (ARCHIVO_POR_EVENTO as $tipo => $archivo) {
+    foreach (ARCHIVO_POR_EVENTO as $tipo => $nombre) {
         $registros = leerRegistros($tipo);
 
         $archivos[] = [
             'tipo' => $tipo,
-            'archivo' => 'data/' . $archivo,
-            'nombre' => $archivo,
+            'nombre' => $nombre,
             'total' => count($registros),
             'registros' => $registros,
         ];
