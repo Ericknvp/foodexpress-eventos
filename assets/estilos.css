@@ -347,8 +347,7 @@ table {
 
 .ficha-estado {
     margin-top: 3px;
-    font-family: var(--mono);
-    font-size: 12px;
+    font-size: 13px;
     color: var(--tinta-2);
 }
 
@@ -358,8 +357,7 @@ table {
 
 .ficha-pie {
     margin-top: 3px;
-    font-family: var(--mono);
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--tinta-3);
     font-variant-numeric: tabular-nums;
 }
