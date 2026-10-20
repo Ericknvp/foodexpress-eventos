@@ -1,0 +1,117 @@
+==============================================================================
+                       FOODEXPRESS - SISTEMA DE EVENTOS
+==============================================================================
+ Taller 1 | Patron: productor -> enrutador -> consumidor
+ Corrida: 2026-10-20 15:49:03
+==============================================================================
+
+PREPARACION DE LA SIMULACION
+------------------------------------------------------------------------------
+ Modo.................. simulacion reproducible
+ Origenes.............. app movil y sitio web
+ Archivos.............. data/pedidos.json
+                        data/cancelaciones.json
+                        data/consultas_estado.json
+ Estado................ se reinician vacios antes de emitir
+------------------------------------------------------------------------------
+ ESCENARIO 1 | Pedido nuevo desde la app movil
+------------------------------------------------------------------------------
+ Evento........ nuevo_pedido
+ Canal......... app_movil
+ Fecha......... 2026-10-20 12:05:00
+ id_pedido..... FE-1001
+ cliente....... Valentina Rojas
+ restaurante... SaborBrasa
+ items.........
+   1. Bandeja paisa.......... 2 x $ 18.500 =    $ 37.000
+   2. Jugo de mango.......... 1 x $ 7.000 =     $ 7.000
+ total......... $ 44.000
+
+ ENRUTADO  nuevo_pedido -> Cocina, Logistica
+
+ COCINA
+ accion........ inicio_preparacion
+ estado........ preparacion_en_curso
+ detalle....... Comanda recibida en cocina: 2 plato(s) para preparar.
+ registro...... data/pedidos.json
+
+ LOGISTICA
+ accion........ asignar_repartidor
+ estado........ repartidor_asignado
+ detalle....... Repartidor Carlos Ramirez asignado para recoger el pedido
+                en SaborBrasa.
+ registro...... data/pedidos.json
+------------------------------------------------------------------------------
+ ESCENARIO 2 | Pedido cancelado desde el sitio web
+------------------------------------------------------------------------------
+ Evento........ pedido_cancelado
+ Canal......... sitio_web
+ Fecha......... 2026-10-20 12:07:30
+ id_pedido..... FE-1001
+ cliente....... Valentina Rojas
+ restaurante... SaborBrasa
+ motivo........ El cliente digito una direccion equivocada y cancelo desde
+                el sitio web
+
+ ENRUTADO  pedido_cancelado -> Cocina, Logistica
+
+ COCINA
+ accion........ detener_preparacion
+ estado........ preparacion_detenida
+ detalle....... La preparacion estaba en curso, se detiene y se libera la
+                mesa.
+ registro...... data/cancelaciones.json
+
+ LOGISTICA
+ accion........ liberar_repartidor
+ estado........ repartidor_liberado
+ detalle....... Repartidor Carlos Ramirez liberado, queda disponible para
+                otro pedido.
+ registro...... data/cancelaciones.json
+------------------------------------------------------------------------------
+ ESCENARIO 3 | Consulta de estado del pedido desde la app movil
+------------------------------------------------------------------------------
+ Evento........ consulta_estado_pedido
+ Canal......... app_movil
+ Fecha......... 2026-10-20 12:09:10
+ id_pedido..... FE-1001
+ cliente....... Valentina Rojas
+
+ ENRUTADO  consulta_estado_pedido -> Atencion al Cliente
+
+ ATENCION AL CLIENTE
+ accion........ responder_estado_pedido
+ estado........ cancelado
+ detalle....... El pedido FE-1001 quedo cancelado desde el sitio web.
+                Motivo: El cliente digito una direccion equivocada y
+                cancelo desde el sitio web. La preparacion se detuvo y el
+                repartidor fue liberado, por lo que no habra entrega.
+ registro...... data/consultas_estado.json
+==============================================================================
+                            RESUMEN DE LA CORRIDA
+==============================================================================
+ Entregas realizadas por el enrutador
+------------------------------------------------------------------------------
+ ESC.  EVENTO                  CONSUMIDOR           ACCION
+ ----  ----------------------  -------------------  -----------------------
+ 1     nuevo_pedido            Cocina               inicio_preparacion
+ 1     nuevo_pedido            Logistica            asignar_repartidor
+ 2     pedido_cancelado        Cocina               detener_preparacion
+ 2     pedido_cancelado        Logistica            liberar_repartidor
+ 3     consulta_estado_pedido  Atencion al Cliente  responder_estado_pedido
+
+ ARCHIVOS GENERADOS
+------------------------------------------------------------------------------
+ data/pedidos.json........... 2 registros
+     Cocina.............. inicio_preparacion
+     Logistica........... asignar_repartidor
+ data/cancelaciones.json..... 2 registros
+     Cocina.............. detener_preparacion
+     Logistica........... liberar_repartidor
+ data/consultas_estado.json.. 1 registro
+     Atencion al Cliente. responder_estado_pedido
+------------------------------------------------------------------------------
+ Eventos emitidos...... 3
+ Entregas a consumidores 5
+ Registros persistidos. 5
+==============================================================================
