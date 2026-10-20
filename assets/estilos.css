@@ -118,6 +118,10 @@ table {
     letter-spacing: -0.015em;
 }
 
+.marca-sep {
+    color: var(--tinta-3);
+}
+
 .marca-detalle {
     font-size: 13px;
     color: var(--tinta-3);
