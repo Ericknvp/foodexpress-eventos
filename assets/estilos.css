@@ -110,7 +110,7 @@ table {
 
 .barra-superior {
     display: grid;
-    grid-template-columns: 300px minmax(0, 1fr) 360px;
+    grid-template-columns: 300px minmax(0, 1fr) 380px;
     align-items: center;
     gap: 16px;
     height: 57px;
@@ -252,7 +252,7 @@ table {
 
 .banco {
     display: grid;
-    grid-template-columns: 300px minmax(0, 1fr) 360px;
+    grid-template-columns: 300px minmax(0, 1fr) 380px;
     gap: 16px;
     padding: 16px;
     height: calc(100vh - 57px);
@@ -878,16 +878,4 @@ table {
 
 .tabla .celda-mono span {
     color: var(--tinta-3);
-}
-
-.banco {
-    display: grid;
-    grid-template-columns: 300px minmax(0, 1fr) 380px;
-    gap: 16px;
-    padding: 16px;
-    height: calc(100vh - 57px);
-}
-
-.barra-superior {
-    grid-template-columns: 300px minmax(0, 1fr) 380px;
 }
