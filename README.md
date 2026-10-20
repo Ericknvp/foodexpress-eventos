@@ -35,7 +35,7 @@ con tres eventos y tres areas internas:
 | `pedido_cancelado` | sitio web | Cocina y Logistica | `data/cancelaciones.json` |
 | `consulta_estado_pedido` | app movil | Atencion al Cliente | `data/consultas_estado.json` |
 
-Los datos son ficticios: el pedido `FE-1001` de Valentina Rojas en el restaurante
+Los datos son ficticios: el pedido `FE-1001` de Erick Narváez en el restaurante
 SaborBrasa es el ejemplo que recorre todo el sistema.
 
 ## Como funciona
