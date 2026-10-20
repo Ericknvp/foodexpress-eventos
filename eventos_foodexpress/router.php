@@ -1,6 +1,5 @@
 <?php
 
-
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'consumidor.php';
@@ -23,60 +22,38 @@ const CAMPOS_OBLIGATORIOS = [
     'consulta_estado_pedido' => ['cliente', 'id_pedido'],
 ];
 
-function clasificarEvento(array $evento): string
+function enrutar(array $evento): array
 {
     $tipo = $evento['tipo'] ?? '';
 
     if (!array_key_exists($tipo, RUTAS_CONSUMIDOR)) {
-        throw new InvalidArgumentException("Tipo de evento no soportado por el enrutador: {$tipo}");
+        throw new InvalidArgumentException("El enrutador no conoce el evento: {$tipo}");
     }
 
-    return $tipo;
-}
-
-function camposFaltantes(string $tipo, array $evento): array
-{
     $faltantes = [];
 
     foreach (CAMPOS_OBLIGATORIOS[$tipo] as $campo) {
-        if (!array_key_exists($campo, $evento) || $evento[$campo] === '' || $evento[$campo] === []) {
+        if (!isset($evento[$campo]) || $evento[$campo] === '' || $evento[$campo] === []) {
             $faltantes[] = $campo;
         }
     }
 
-    return $faltantes;
-}
-
-function descripcionRuta(string $tipo): string
-{
-    $destinos = array_map(
-        fn (string $destino): string => NOMBRE_CONSUMIDOR[$destino],
-        RUTAS_CONSUMIDOR[$tipo]
-    );
-
-    return $tipo . ' -> ' . implode(', ', $destinos);
-}
-
-function enrutar(array $evento): array
-{
-    $tipo = clasificarEvento($evento);
-    $faltantes = camposFaltantes($tipo, $evento);
-
     if ($faltantes !== []) {
         throw new InvalidArgumentException(
-            "El evento {$tipo} esta incompleto, faltan los campos: " . implode(', ', $faltantes)
+            "El evento {$tipo} esta incompleto, faltan: " . implode(', ', $faltantes)
         );
     }
 
     $resultados = [];
 
-    foreach (RUTAS_CONSUMIDOR[$tipo] as $destino) {
-        $funcion = FUNCION_CONSUMIDOR[$destino];
+    foreach (RUTAS_CONSUMIDOR[$tipo] as $area) {
+        $funcion = FUNCION_CONSUMIDOR[$area];
         $registro = $funcion($evento);
 
         $resultados[] = [
-            'consumidor' => $destino,
-            'nombre' => NOMBRE_CONSUMIDOR[$destino],
+            'consumidor' => $area,
+            'nombre' => NOMBRE_CONSUMIDOR[$area],
+            'evento' => $tipo,
             'accion' => $registro['accion'],
             'estado' => $registro['estado'],
             'detalle' => $registro['detalle'],
@@ -84,10 +61,12 @@ function enrutar(array $evento): array
         ];
     }
 
+    $destinos = array_map(fn (string $area): string => NOMBRE_CONSUMIDOR[$area], RUTAS_CONSUMIDOR[$tipo]);
+
     return [
         'tipo' => $tipo,
         'origen' => $evento['origen'] ?? 'desconocido',
-        'ruta' => descripcionRuta($tipo),
+        'ruta' => $tipo . ' -> ' . implode(', ', $destinos),
         'destinos' => RUTAS_CONSUMIDOR[$tipo],
         'resultados' => $resultados,
     ];
