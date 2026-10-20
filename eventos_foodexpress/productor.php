@@ -268,9 +268,11 @@ function renderResumen(array $resumen, int $eventos): void
     echo linea('=') . PHP_EOL;
 }
 
-try {
-    ejecutar();
-} catch (Throwable $error) {
-    echo PHP_EOL . ' ERROR EN LA CORRIDA: ' . $error->getMessage() . PHP_EOL;
-    exit(1);
+if (PHP_SAPI === 'cli') {
+    try {
+        ejecutar();
+    } catch (Throwable $error) {
+        echo PHP_EOL . ' ERROR EN LA CORRIDA: ' . $error->getMessage() . PHP_EOL;
+        exit(1);
+    }
 }
