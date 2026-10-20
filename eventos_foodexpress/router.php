@@ -10,12 +10,6 @@ const RUTAS_CONSUMIDOR = [
     'consulta_estado_pedido' => ['atencion_cliente'],
 ];
 
-const FUNCION_CONSUMIDOR = [
-    'cocina' => 'cocina',
-    'logistica' => 'logistica',
-    'atencion_cliente' => 'atencionCliente',
-];
-
 const CAMPOS_OBLIGATORIOS = [
     'nuevo_pedido' => ['id_pedido', 'cliente', 'restaurante', 'items', 'total'],
     'pedido_cancelado' => ['id_pedido', 'cliente', 'restaurante', 'motivo'],
@@ -47,8 +41,7 @@ function enrutar(array $evento): array
     $resultados = [];
 
     foreach (RUTAS_CONSUMIDOR[$tipo] as $area) {
-        $funcion = FUNCION_CONSUMIDOR[$area];
-        $registro = $funcion($evento);
+        $registro = consumir($area, $evento);
 
         $resultados[] = [
             'consumidor' => $area,

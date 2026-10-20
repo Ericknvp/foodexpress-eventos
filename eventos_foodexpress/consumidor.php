@@ -49,36 +49,6 @@ function escribirRegistros(string $tipo, array $registros): void
     file_put_contents(rutaArchivo($tipo), $json . PHP_EOL, LOCK_EX);
 }
 
-function registrarAccion(
-    string $tipo,
-    string $area,
-    array $evento,
-    string $accion,
-    string $estado,
-    string $detalle,
-    array $extra = []
-): array {
-    $registro = array_merge(
-        [
-            'consumidor' => $area,
-            'evento' => $tipo,
-            'accion' => $accion,
-            'estado' => $estado,
-            'detalle' => $detalle,
-            'id_pedido' => $evento['id_pedido'] ?? '',
-            'cliente' => $evento['cliente'] ?? '',
-            'registrado_en' => date('Y-m-d H:i:s'),
-        ],
-        $extra
-    );
-
-    $registros = leerRegistros($tipo);
-    $registros[] = $registro;
-    escribirRegistros($tipo, $registros);
-
-    return $registro;
-}
-
 function pedidoExiste(string $idPedido): bool
 {
     foreach (leerRegistros('nuevo_pedido') as $registro) {
@@ -133,117 +103,110 @@ function siguienteRepartidor(): string
 
 function cocina(array $evento): array
 {
-    $tipo = $evento['tipo'];
-
-    if ($tipo === 'nuevo_pedido') {
+    if ($evento['tipo'] === 'nuevo_pedido') {
         $platos = count($evento['items'] ?? []);
 
-        return registrarAccion(
-            $tipo,
-            'cocina',
-            $evento,
-            'inicio_preparacion',
-            'preparacion_en_curso',
-            "Comanda recibida: {$platos} plato(s) para preparar."
-        );
+        return [
+            'accion' => 'inicio_preparacion',
+            'estado' => 'preparacion_en_curso',
+            'detalle' => "Comanda recibida: {$platos} plato(s) para preparar.",
+        ];
     }
 
     if (!pedidoExiste($evento['id_pedido'])) {
-        return registrarAccion(
-            $tipo,
-            'cocina',
-            $evento,
-            'sin_preparacion',
-            'sin_preparacion',
-            'No habia preparacion activa para ese pedido.'
-        );
+        return [
+            'accion' => 'sin_preparacion',
+            'estado' => 'sin_preparacion',
+            'detalle' => 'No habia preparacion activa para ese pedido.',
+        ];
     }
 
-    return registrarAccion(
-        $tipo,
-        'cocina',
-        $evento,
-        'detener_preparacion',
-        'preparacion_detenida',
-        'La preparacion estaba en curso, se detiene y se libera la mesa.'
-    );
+    return [
+        'accion' => 'detener_preparacion',
+        'estado' => 'preparacion_detenida',
+        'detalle' => 'La preparacion estaba en curso, se detiene y se libera la mesa.',
+    ];
 }
 
 function logistica(array $evento): array
 {
-    $tipo = $evento['tipo'];
-
-    if ($tipo === 'nuevo_pedido') {
+    if ($evento['tipo'] === 'nuevo_pedido') {
         $repartidor = siguienteRepartidor();
 
-        return registrarAccion(
-            $tipo,
-            'logistica',
-            $evento,
-            'asignar_repartidor',
-            'repartidor_asignado',
-            "Repartidor {$repartidor} asignado para recoger el pedido.",
-            ['repartidor' => $repartidor]
-        );
+        return [
+            'accion' => 'asignar_repartidor',
+            'estado' => 'repartidor_asignado',
+            'detalle' => "Repartidor {$repartidor} asignado para recoger el pedido.",
+            'extra' => ['repartidor' => $repartidor],
+        ];
     }
 
     $repartidor = repartidorDe($evento['id_pedido']);
 
     if ($repartidor === null) {
-        return registrarAccion(
-            $tipo,
-            'logistica',
-            $evento,
-            'sin_repartidor',
-            'sin_repartidor_asignado',
-            'No habia repartidor asignado para ese pedido.'
-        );
+        return [
+            'accion' => 'sin_repartidor',
+            'estado' => 'sin_repartidor_asignado',
+            'detalle' => 'No habia repartidor asignado para ese pedido.',
+        ];
     }
 
-    return registrarAccion(
-        $tipo,
-        'logistica',
-        $evento,
-        'liberar_repartidor',
-        'repartidor_liberado',
-        "Repartidor {$repartidor} liberado, queda disponible para otro pedido.",
-        ['repartidor' => $repartidor]
-    );
+    return [
+        'accion' => 'liberar_repartidor',
+        'estado' => 'repartidor_liberado',
+        'detalle' => "Repartidor {$repartidor} liberado, queda disponible para otro pedido.",
+        'extra' => ['repartidor' => $repartidor],
+    ];
 }
 
-function atencionCliente(array $evento): array
+function atencion_cliente(array $evento): array
 {
-    $tipo = $evento['tipo'];
     $idPedido = $evento['id_pedido'];
 
     if (!pedidoExiste($idPedido)) {
-        return registrarAccion(
-            $tipo,
-            'atencion_cliente',
-            $evento,
-            'responder_estado',
-            'desconocido',
-            "No hay registro del pedido {$idPedido} en la plataforma."
-        );
+        return [
+            'accion' => 'responder_estado',
+            'estado' => 'desconocido',
+            'detalle' => "No hay registro del pedido {$idPedido} en la plataforma.",
+        ];
     }
 
     if (pedidoCancelado($idPedido)) {
-        return registrarAccion(
-            $tipo,
-            'atencion_cliente',
-            $evento,
-            'responder_estado',
-            'cancelado',
-            "El pedido {$idPedido} quedo cancelado desde el sitio web."
-        );
+        return [
+            'accion' => 'responder_estado',
+            'estado' => 'cancelado',
+            'detalle' => "El pedido {$idPedido} quedo cancelado desde el sitio web.",
+        ];
     }
 
-    return registrarAccion(
-        $tipo,
-        'atencion_cliente',
-        $evento,
-        'responder_estado',
-        'en_preparacion',
-        "El pedido {$idPedido} esta en preparacion en la cocina."
+    return [
+        'accion' => 'responder_estado',
+        'estado' => 'en_preparacion',
+        'detalle' => "El pedido {$idPedido} esta en preparacion en la cocina.",
+    ];
+}
+
+function consumir(string $area, array $evento): array
+{
+    $respuesta = $area($evento);
+
+    $registro = array_merge(
+        [
+            'consumidor' => $area,
+            'evento' => $evento['tipo'],
+            'accion' => $respuesta['accion'],
+            'estado' => $respuesta['estado'],
+            'detalle' => $respuesta['detalle'],
+            'id_pedido' => $evento['id_pedido'] ?? '',
+            'cliente' => $evento['cliente'] ?? '',
+            'registrado_en' => date('Y-m-d H:i:s'),
+        ],
+        $respuesta['extra'] ?? []
     );
+
+    $registros = leerRegistros($evento['tipo']);
+    $registros[] = $registro;
+    escribirRegistros($evento['tipo'], $registros);
+
+    return $registro;
 }
