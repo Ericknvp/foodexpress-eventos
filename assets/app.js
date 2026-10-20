@@ -151,7 +151,7 @@ async function emitir(clave, boton) {
     boton.textContent = 'Emitiendo';
 
     try {
-        const respuesta = await fetch('api/emitir.php', {
+        const respuesta = await fetch('api.php?accion=emitir', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ escenario: clave }),
@@ -186,7 +186,7 @@ async function reiniciar() {
     elementos.reiniciar.disabled = true;
 
     try {
-        const respuesta = await fetch('api/reiniciar.php', { method: 'POST' });
+        const respuesta = await fetch('api.php?accion=reiniciar', { method: 'POST' });
         const datos = await respuesta.json();
 
         estadoArchivos = datos.archivos;
@@ -213,7 +213,7 @@ function iniciar() {
         pestana.addEventListener('click', () => activarPestana(pestana));
     });
 
-    fetch('api/estado.php')
+    fetch('api.php?accion=estado')
         .then((respuesta) => respuesta.json())
         .then((datos) => {
             estadoArchivos = datos.archivos;
