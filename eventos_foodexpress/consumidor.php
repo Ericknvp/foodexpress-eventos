@@ -15,9 +15,9 @@ const NOMBRE_CONSUMIDOR = [
 ];
 
 const CAMPOS_POR_EVENTO = [
-    'nuevo_pedido' => ['origen', 'id_pedido', 'cliente', 'restaurante', 'items', 'total'],
-    'pedido_cancelado' => ['origen', 'id_pedido', 'cliente', 'restaurante', 'motivo'],
-    'consulta_estado_pedido' => ['origen', 'id_pedido', 'cliente'],
+    'nuevo_pedido' => ['origen', 'fecha', 'id_pedido', 'cliente', 'restaurante', 'items', 'total'],
+    'pedido_cancelado' => ['origen', 'fecha', 'id_pedido', 'cliente', 'restaurante', 'motivo'],
+    'consulta_estado_pedido' => ['origen', 'fecha', 'id_pedido', 'cliente'],
 ];
 
 function directorioDatos(): string
