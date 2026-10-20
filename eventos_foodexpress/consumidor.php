@@ -188,3 +188,44 @@ function repartidorAsignado(string $idPedido): ?string
 
     return $repartidor;
 }
+
+function logistica(array $evento): array
+{
+    $tipo = $evento['tipo'];
+
+    if ($tipo === 'nuevo_pedido') {
+        $repartidor = siguienteRepartidor();
+
+        return registrarAccion($tipo, 'logistica', $evento, [
+            'accion' => 'asignar_repartidor',
+            'estado' => 'repartidor_asignado',
+            'detalle' => "Repartidor {$repartidor} asignado para recoger el pedido en {$evento['restaurante']}.",
+            'campos' => ['repartidor' => $repartidor],
+        ]);
+    }
+
+    if ($tipo === 'pedido_cancelado') {
+        $repartidor = repartidorAsignado($evento['id_pedido']);
+
+        if ($repartidor !== null) {
+            $accion = 'liberar_repartidor';
+            $estado = 'repartidor_liberado';
+            $detalle = "Repartidor {$repartidor} liberado, queda disponible para otro pedido.";
+            $campos = ['repartidor' => $repartidor];
+        } else {
+            $accion = 'sin_repartidor_para_liberar';
+            $estado = 'sin_repartidor_asignado';
+            $detalle = 'No habia repartidor asignado para este pedido, no hay nada que liberar.';
+            $campos = [];
+        }
+
+        return registrarAccion($tipo, 'logistica', $evento, [
+            'accion' => $accion,
+            'estado' => $estado,
+            'detalle' => $detalle,
+            'campos' => $campos,
+        ]);
+    }
+
+    throw new InvalidArgumentException("El consumidor de logistica no procesa el evento {$tipo}");
+}
