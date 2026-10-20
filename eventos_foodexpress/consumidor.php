@@ -97,3 +97,18 @@ function registrarAccion(string $tipo, string $consumidor, array $evento, array 
 
     return $registro;
 }
+
+function estadoPreparacion(string $idPedido): string
+{
+    $estado = 'sin_preparacion';
+
+    foreach (['nuevo_pedido', 'pedido_cancelado'] as $tipo) {
+        foreach (leerRegistros($tipo) as $registro) {
+            if (($registro['consumidor'] ?? '') === 'cocina' && ($registro['id_pedido'] ?? '') === $idPedido) {
+                $estado = $registro['estado'];
+            }
+        }
+    }
+
+    return $estado;
+}
