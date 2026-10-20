@@ -1,5 +1,12 @@
 <?php
 
+/*
+router.php
+Aqui se maneja el enrutador: clasifica el evento por su tipo, valida que
+traiga todos sus campos y lo entrega al consumidor o a los consumidores
+correctos. Es el fan-out del taller.
+*/
+
 declare(strict_types=1);
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'consumidor.php';
