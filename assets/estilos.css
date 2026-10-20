@@ -372,6 +372,7 @@ table {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    min-width: 0;
     padding: 22px 24px;
     background: var(--papel);
     border-left: 1px solid var(--linea);
