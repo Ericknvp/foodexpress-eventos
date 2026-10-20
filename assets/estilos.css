@@ -117,6 +117,10 @@ table {
     padding: 0 16px;
     background: var(--papel);
     border-bottom: 1px solid var(--linea);
+    background-image:
+        repeating-linear-gradient(0deg, var(--reticula) 0 1px, transparent 1px 4px),
+        repeating-linear-gradient(90deg, var(--reticula) 0 1px, transparent 1px 4px);
+    background-clip: content-box;
 }
 
 .marca {
@@ -147,9 +151,6 @@ table {
     gap: 6px;
     height: 100%;
     min-width: 0;
-    background-image:
-        repeating-linear-gradient(0deg, var(--reticula) 0 1px, transparent 1px 4px),
-        repeating-linear-gradient(90deg, var(--reticula) 0 1px, transparent 1px 4px);
 }
 
 .franja-caja {
