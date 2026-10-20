@@ -1,5 +1,12 @@
 <?php
 
+/*
+api.php
+Aqui se maneja el unico endpoint de la consola web. Recibe ?accion=emitir,
+?accion=estado o ?accion=reiniciar, llama al enrutador cuando toca emitir un
+evento y devuelve el estado de los tres archivos JSON de data/.
+*/
+
 declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
