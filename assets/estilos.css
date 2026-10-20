@@ -401,10 +401,6 @@ table {
     overflow-wrap: anywhere;
 }
 
-.escenario .boton {
-    width: 100%;
-}
-
 .bandejas {
     display: flex;
     flex-direction: column;
@@ -674,7 +670,7 @@ table {
     font-family: var(--mono);
     font-size: 11px;
     color: var(--tinta-2);
-    white-space: nowrap;
+    overflow-wrap: anywhere;
 }
 
 .tabla .celda-mono strong {
@@ -862,6 +858,7 @@ table {
 
 .escenario-cabecera .boton {
     flex: none;
+    width: auto;
     padding: 5px 12px;
     font-size: 12.5px;
 }
@@ -881,4 +878,16 @@ table {
 
 .tabla .celda-mono span {
     color: var(--tinta-3);
+}
+
+.banco {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr) 380px;
+    gap: 16px;
+    padding: 16px;
+    height: calc(100vh - 57px);
+}
+
+.barra-superior {
+    grid-template-columns: 300px minmax(0, 1fr) 380px;
 }
