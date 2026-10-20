@@ -46,3 +46,23 @@ jobs:
           }
           echo "OK: 5 registros persistidos en los tres archivos" . PHP_EOL;
           '
+
+      - name: Verificar la consola web
+        run: |
+          php -S 127.0.0.1:8099 -t . > /dev/null 2>&1 &
+          sleep 3
+          pagina=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8099/index.php)
+          if [ "$pagina" != "200" ]; then
+              echo "La consola web respondio con $pagina" >&2
+              exit 1
+          fi
+          cuerpo=$(curl -s -X POST -H "Content-Type: application/json" -d '{"escenario":"nuevo_pedido"}' http://127.0.0.1:8099/api/emitir.php)
+          if ! echo "$cuerpo" | grep -q "inicio_preparacion"; then
+              echo "La emision no llego a cocina" >&2
+              exit 1
+          fi
+          if ! echo "$cuerpo" | grep -q "asignar_repartidor"; then
+              echo "La emision no llego a logistica" >&2
+              exit 1
+          fi
+          echo "OK: la consola web responde y enruta hacia cocina y logistica"
