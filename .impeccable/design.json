@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "design": "DESIGN.md",
+    "surface": "index.php",
+    "world": "Mesa de despacho clara",
+    "colorStrategy": "restrained",
+    "tokens": {
+        "fondo": "#e9edf2",
+        "papel": "#ffffff",
+        "papelHundido": "#f5f8fa",
+        "tinta": "#16202b",
+        "tintaSecundaria": "#485666",
+        "tintaTerciaria": "#5f6c7a",
+        "filete": "#cbd4de",
+        "fileteFuerte": "#aab7c4",
+        "carrier": "#1b4b73",
+        "cocina": "#8a5b12",
+        "logistica": "#1b4b73",
+        "atencion": "#1c6349",
+        "alarma": "#9e2b2b"
+    },
+    "type": {
+        "sans": "Segoe UI, system-ui, -apple-system, Helvetica Neue, Arial, sans-serif",
+        "mono": "ui-monospace, Cascadia Mono, Consolas, Courier New, monospace"
+    },
+    "components": [
+        "barra-superior",
+        "franja",
+        "escenario",
+        "bandeja",
+        "ficha",
+        "inspector",
+        "pestana",
+        "boton"
+    ],
+    "surfaceBrief": ".impeccable/surfaces/index-php.md",
+    "product": "PRODUCT.md"
+}
