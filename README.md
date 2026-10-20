@@ -22,11 +22,27 @@ eventos_foodexpress/
 └── consumidor.php
 ```
 
+La carpeta `eventos_foodexpress/` conserva exactamente la estructura que pide la
+guia. La consola web vive por fuera de ella, para no alterar esa entrega:
+
+```
+index.php              consola web (compositor, bandejas, inspector)
+api/
+├── datos.php          escenario y lectura de los archivos de data/
+├── emitir.php         emite un escenario a traves del enrutador
+├── estado.php         devuelve el estado de los tres JSON
+└── reiniciar.php      vacia los tres JSON
+assets/
+├── estilos.css        paleta, retícula y componentes
+└── app.js             cliente de la consola
+```
+
 | Archivo | Responsabilidad |
 |---|---|
 | `productor.php` | Simula los tres escenarios de negocio, invoca al enrutador y muestra el resultado en consola. |
 | `router.php` | Clasifica el tipo de evento, valida sus campos y hace el fan-out hacia los consumidores. |
 | `consumidor.php` | Implementa Cocina, Logistica y Atencion al Cliente, y persiste cada accion en `data/`. |
+| `index.php` | Consola web: emite eventos y muestra el fan-out, las entregas y el contenido vivo de los JSON. |
 
 ## Correspondencia con el ejemplo de clase
 
@@ -61,6 +77,27 @@ eventos_foodexpress/
 - Permiso de escritura en `eventos_foodexpress/data/`.
 
 ## Ejecucion
+
+### En el navegador (consola web)
+
+El proyecto vive dentro de `htdocs` de XAMPP, asi que con Apache encendido la
+consola se abre en:
+
+```
+http://localhost/PedidosComida/
+```
+
+Desde ahi se elige un escenario, se pulsa **Emitir** y se ve el evento viajar
+desde el canal hasta el area interna que lo recibe, con la accion que cada
+consumidor ejecuto y el archivo JSON donde quedo registrada. La web y la linea
+de comandos escriben sobre los mismos archivos de `data/`.
+
+La consola tiene tres zonas: el **compositor** con los tres escenarios a la
+izquierda, las **bandejas por area interna** en el centro y el **inspector de
+archivos** a la derecha, con las pestanas de los tres JSON y el contenido del
+archivo activo.
+
+### En la linea de comandos
 
 ```bash
 cd eventos_foodexpress
@@ -121,3 +158,5 @@ capturas de la consola y de los tres archivos JSON generados:
 | `evidencia/captura_pedidos.json.png` | Captura de `data/pedidos.json`. |
 | `evidencia/captura_cancelaciones.json.png` | Captura de `data/cancelaciones.json`. |
 | `evidencia/captura_consultas_estado.json.png` | Captura de `data/consultas_estado.json`. |
+| `evidencia/captura_consola_web.png` | Captura de la consola web en escritorio. |
+| `evidencia/captura_consola_web_movil.png` | Captura de la consola web en movil. |
