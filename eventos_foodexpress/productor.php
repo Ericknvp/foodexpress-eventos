@@ -216,7 +216,7 @@ function ejecutar(): void
         }
     }
 
-    renderResumen($resumen);
+    renderResumen($resumen, count($escenarios));
 }
 
 function renderResumen(array $resumen, int $eventos): void
@@ -242,4 +242,11 @@ function renderResumen(array $resumen, int $eventos): void
     campo('Entregas a consumidores', (string) count($resumen));
     campo('Registros persistidos', (string) $total);
     echo linea('=') . PHP_EOL;
+}
+
+try {
+    ejecutar();
+} catch (Throwable $error) {
+    echo PHP_EOL . ' ERROR EN LA CORRIDA: ' . $error->getMessage() . PHP_EOL;
+    exit(1);
 }
