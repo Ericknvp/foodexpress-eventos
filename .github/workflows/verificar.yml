@@ -3,39 +3,28 @@ name: Verificar taller FoodExpress
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   verificar:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Obtener el codigo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Preparar PHP
-        uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
 
-      - name: Ejecutar el productor
-        run: php eventos_foodexpress/productor.php
-
-      - name: Validar los JSON generados
+      - name: Correr el productor y validar los JSON
         run: |
+          php eventos_foodexpress/productor.php
           php -r '
-          $base = "eventos_foodexpress/data/";
           $total = 0;
           foreach (["pedidos", "cancelaciones", "consultas_estado"] as $archivo) {
-              $ruta = $base . $archivo . ".json";
-              if (!is_file($ruta)) {
-                  fwrite(STDERR, "Falta el archivo " . $ruta . PHP_EOL);
-                  exit(1);
-              }
+              $ruta = "eventos_foodexpress/data/" . $archivo . ".json";
               $datos = json_decode(file_get_contents($ruta), true);
               if (!is_array($datos)) {
-                  fwrite(STDERR, "JSON invalido en " . $ruta . PHP_EOL);
+                  fwrite(STDERR, "JSON invalido: " . $ruta . PHP_EOL);
                   exit(1);
               }
               $total += count($datos);
@@ -44,25 +33,18 @@ jobs:
               fwrite(STDERR, "Se esperaban 5 registros y se obtuvieron " . $total . PHP_EOL);
               exit(1);
           }
-          echo "OK: 5 registros persistidos en los tres archivos" . PHP_EOL;
+          echo "OK: 5 registros en los tres archivos" . PHP_EOL;
           '
 
       - name: Verificar la consola web
         run: |
           php -S 127.0.0.1:8099 -t . > /dev/null 2>&1 &
           sleep 3
-          pagina=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8099/index.php)
-          if [ "$pagina" != "200" ]; then
-              echo "La consola web respondio con $pagina" >&2
+          if [ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8099/index.php)" != "200" ]; then
+              echo "La consola web no responde" >&2
               exit 1
           fi
-          cuerpo=$(curl -s -X POST -H "Content-Type: application/json" -d '{"escenario":"nuevo_pedido"}' http://127.0.0.1:8099/api/emitir.php)
-          if ! echo "$cuerpo" | grep -q "inicio_preparacion"; then
-              echo "La emision no llego a cocina" >&2
-              exit 1
-          fi
-          if ! echo "$cuerpo" | grep -q "asignar_repartidor"; then
-              echo "La emision no llego a logistica" >&2
-              exit 1
-          fi
-          echo "OK: la consola web responde y enruta hacia cocina y logistica"
+          cuerpo=$(curl -s -X POST -H "Content-Type: application/json" -d '{"escenario":"nuevo_pedido"}' "http://127.0.0.1:8099/api.php?accion=emitir")
+          echo "$cuerpo" | grep -q "inicio_preparacion" || { echo "No llego a cocina" >&2; exit 1; }
+          echo "$cuerpo" | grep -q "asignar_repartidor" || { echo "No llego a logistica" >&2; exit 1; }
+          echo "OK: la consola enruta hacia cocina y logistica"
