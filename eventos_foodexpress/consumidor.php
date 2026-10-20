@@ -316,3 +316,49 @@ function atencionCliente(array $evento): array
         'campos' => ['pasos_consultados' => $estado['pasos']],
     ]);
 }
+
+function estadoInternoPedido(string $idPedido): array
+{
+    $preparacion = 'sin_preparacion';
+    $repartidor = null;
+    $repartidorLiberado = false;
+    $cancelado = false;
+
+    foreach (leerRegistros('nuevo_pedido') as $registro) {
+        if (($registro['id_pedido'] ?? '') !== $idPedido) {
+            continue;
+        }
+
+        if ($registro['consumidor'] === 'cocina') {
+            $preparacion = $registro['estado'];
+        }
+
+        if ($registro['consumidor'] === 'logistica') {
+            $repartidor = $registro['repartidor'] ?? null;
+        }
+    }
+
+    foreach (leerRegistros('pedido_cancelado') as $registro) {
+        if (($registro['id_pedido'] ?? '') !== $idPedido) {
+            continue;
+        }
+
+        $cancelado = true;
+
+        if ($registro['consumidor'] === 'cocina') {
+            $preparacion = $registro['estado'];
+        }
+
+        if ($registro['consumidor'] === 'logistica' && $registro['estado'] === 'repartidor_liberado') {
+            $repartidorLiberado = true;
+            $repartidor = null;
+        }
+    }
+
+    return [
+        'preparacion' => $preparacion,
+        'repartidor' => $repartidor,
+        'repartidor_liberado' => $repartidorLiberado,
+        'cancelado' => $cancelado,
+    ];
+}
