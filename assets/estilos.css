@@ -444,11 +444,11 @@ table {
     flex: 1;
     min-height: 0;
     margin: 0;
-    padding: 12px;
+    padding: 11px 12px;
     overflow: auto;
     font-family: var(--mono);
-    font-size: 11.5px;
-    line-height: 1.55;
+    font-size: 11px;
+    line-height: 1.5;
     color: var(--tinta-2);
     white-space: pre;
 }
