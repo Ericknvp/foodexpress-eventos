@@ -96,7 +96,9 @@ function correrEnTerminal(): void
     echo 'Registros en data/: ' . $registros . PHP_EOL;
 }
 
-if (PHP_SAPI === 'cli') {
+$esEntryPoint = PHP_SAPI === 'cli' && realpath($argv[0] ?? '') === __FILE__;
+
+if ($esEntryPoint) {
     try {
         correrEnTerminal();
     } catch (Throwable $error) {
