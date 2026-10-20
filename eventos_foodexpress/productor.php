@@ -54,8 +54,10 @@ function linea(string $caracter = '-'): string
 
 function titulo(string $texto): void
 {
+    $espacios = max(0, intdiv(ANCHO - strlen($texto), 2));
+
     echo linea('=') . PHP_EOL;
-    echo ' ' . $texto . PHP_EOL;
+    echo str_repeat(' ', $espacios) . $texto . PHP_EOL;
     echo linea('=') . PHP_EOL;
 }
 
