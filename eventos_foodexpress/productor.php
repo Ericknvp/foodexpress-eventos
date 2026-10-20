@@ -19,7 +19,7 @@ function escenarioPedidoNuevo(): array
         'tipo' => 'nuevo_pedido',
         'origen' => 'app_movil',
         'id_pedido' => 'FE-1001',
-        'cliente' => 'Valentina Rojas',
+        'cliente' => 'Erick Narváez',
         'restaurante' => 'SaborBrasa',
         'items' => [
             ['plato' => 'Bandeja paisa', 'cantidad' => 2, 'precio' => 18500],
