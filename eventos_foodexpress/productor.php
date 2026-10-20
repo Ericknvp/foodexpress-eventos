@@ -36,7 +36,7 @@ function escenarioPedidoCancelado(): array
         'tipo' => 'pedido_cancelado',
         'origen' => 'sitio_web',
         'id_pedido' => 'FE-1001',
-        'cliente' => 'Valentina Rojas',
+        'cliente' => 'Erick Narváez',
         'restaurante' => 'SaborBrasa',
         'motivo' => 'El cliente digito una direccion equivocada y cancelo desde el sitio web',
         'fecha' => '2026-10-20 12:07:30',
