@@ -6,19 +6,7 @@ require_once __DIR__ . '/api/datos.php';
 
 $escenarios = escenariosDisponibles();
 $archivos = estadoDeArchivos();
-
-function valorCampo(string $campo, $valor): string
-{
-    if ($campo === 'total') {
-        return '$ ' . number_format((float) $valor, 0, ',', '.');
-    }
-
-    if (is_array($valor)) {
-        return count($valor) . ' platos';
-    }
-
-    return htmlspecialchars((string) $valor, ENT_QUOTES);
-}
+$rutas = rutasDeConsumidor();
 ?><!DOCTYPE html>
 <html lang="es">
 <head>
@@ -28,111 +16,69 @@ function valorCampo(string $campo, $valor): string
     <link rel="stylesheet" href="assets/estilos.css">
 </head>
 <body>
-<header class="barra-superior">
+<header class="cabecera">
     <div class="marca">
         <span class="marca-nombre">FoodExpress</span>
-        <span class="marca-detalle">Consola de eventos</span>
+        <span class="marca-detalle">Taller 1 · Sistema de eventos</span>
     </div>
-
-    <div class="franja" id="franja" aria-label="Recorrido del evento: canal, enrutador y areas internas">
-        <span class="franja-caja franja-caja--canal" data-canal="app_movil">App movil</span>
-        <span class="franja-caja franja-caja--canal" data-canal="sitio_web">Sitio web</span>
-        <span class="conector" aria-hidden="true"></span>
-        <span class="franja-caja franja-caja--enrutador" data-enrutador="1">Enrutador</span>
-        <span class="conector" aria-hidden="true"></span>
-        <span class="franja-caja franja-caja--cocina" data-area="cocina"><span class="franja-punto"></span>Cocina</span>
-        <span class="franja-caja franja-caja--logistica" data-area="logistica"><span class="franja-punto"></span>Logistica</span>
-        <span class="franja-caja franja-caja--atencion_cliente" data-area="atencion_cliente"><span class="franja-punto"></span>Atencion al cliente</span>
-    </div>
-
-    <div class="corrida">
-        <div class="corrida-cifras">
-            <span><b id="cifra-eventos">0</b> tipos de evento</span>
-            <span><b id="cifra-entregas">0</b> entregas</span>
-        </div>
-        <button type="button" class="boton boton--secundario" id="reiniciar">Reiniciar datos</button>
-    </div>
+    <button type="button" class="boton boton--secundario" id="reiniciar">Reiniciar datos</button>
 </header>
 
 <main class="banco">
-    <section class="zona compositor" aria-labelledby="titulo-compositor">
-        <h2 class="zona-titulo" id="titulo-compositor">Compositor</h2>
-        <p class="zona-nota">Elige un escenario y emite el evento. El enrutador decide a qué áreas internas llega. Los datos son ficticios, de simulación.</p>
+    <section class="compositor" aria-labelledby="titulo-compositor">
+        <h2 class="zona-titulo" id="titulo-compositor">Escenarios</h2>
+        <p class="zona-nota">Datos ficticios de simulación. Cada emisión pasa por el enrutador.</p>
 
         <ol class="escenarios">
             <?php foreach ($escenarios as $escenario): ?>
-                <li class="escenario" data-escenario="<?= $escenario['clave'] ?>">
-                    <div class="escenario-cabecera">
-                        <p class="escenario-tipo"><?= $escenario['clave'] ?></p>
-                        <button type="button" class="boton boton--primario" data-emitir="<?= $escenario['clave'] ?>">Emitir</button>
-                    </div>
-                    <p class="escenario-descripcion"><?= $escenario['descripcion'] ?></p>
-                    <dl class="escenario-campos">
-                        <dt>canal</dt>
-                        <dd><?= CANALES_EVENTO[$escenario['canal']] ?? $escenario['canal'] ?></dd>
-                        <?php foreach ($escenario['evento'] as $campo => $valor): ?>
-                            <?php if ($campo === 'tipo' || $campo === 'fecha' || $campo === 'origen') {
-                                continue;
-                            } ?>
-                            <dt><?= $campo ?></dt>
-                            <dd><?= valorCampo($campo, $valor) ?></dd>
-                        <?php endforeach; ?>
-                    </dl>
+                <li class="escenario">
+                    <p class="escenario-tipo"><?= $escenario['clave'] ?></p>
+                    <p class="escenario-ruta">
+                        <?= CANALES_EVENTO[$escenario['canal']] ?? $escenario['canal'] ?>
+                        <span class="flecha" aria-hidden="true"></span>
+                        <?= implode(' y ', $rutas[$escenario['clave']]) ?>
+                    </p>
+                    <p class="escenario-texto"><?= $escenario['descripcion'] ?></p>
+                    <button type="button" class="boton boton--primario" data-emitir="<?= $escenario['clave'] ?>">Emitir</button>
                 </li>
             <?php endforeach; ?>
         </ol>
     </section>
 
-    <section class="zona bandejas" aria-labelledby="titulo-bandejas">
+    <section class="bandejas" aria-labelledby="titulo-bandejas">
         <h2 class="zona-titulo" id="titulo-bandejas">Entregas por área interna</h2>
 
-        <div class="bandejas-tarjetas">
+        <div class="areas">
             <?php foreach (AREAS_CONSUMIDOR as $clave => $nombre): ?>
-                <article class="bandeja bandeja--<?= $clave ?>" data-area="<?= $clave ?>">
-                    <header class="bandeja-cabecera">
-                        <span class="bandeja-punto" aria-hidden="true"></span>
+                <section class="area area--<?= $clave ?>" data-area="<?= $clave ?>">
+                    <header class="area-cabecera">
+                        <span class="punto" aria-hidden="true"></span>
                         <h3><?= $nombre ?></h3>
-                        <span class="bandeja-conteo" data-conteo="<?= $clave ?>">0</span>
+                        <span class="conteo" data-conteo="<?= $clave ?>">0</span>
                     </header>
-                    <ul class="bandeja-pila" data-pila="<?= $clave ?>"></ul>
-                </article>
+                    <ul class="area-pila" data-pila="<?= $clave ?>"></ul>
+                </section>
             <?php endforeach; ?>
         </div>
     </section>
 
-    <section class="zona inspector" aria-labelledby="titulo-inspector">
-        <h2 class="zona-titulo" id="titulo-inspector">Archivos de datos</h2>
+    <aside class="inspector" aria-labelledby="titulo-inspector">
+        <h2 class="zona-titulo" id="titulo-inspector">Archivos de data/</h2>
 
         <div class="pestanas" role="tablist" aria-label="Tipos de evento">
             <?php foreach ($archivos as $indice => $archivo): ?>
                 <button type="button" class="pestana" role="tab" id="pestana-<?= $indice ?>"
                         aria-controls="panel-archivo" aria-selected="<?= $indice === 0 ? 'true' : 'false' ?>"
                         tabindex="<?= $indice === 0 ? '0' : '-1' ?>"
-                        data-archivo="<?= $archivo['tipo'] ?>" data-nombre="<?= $archivo['nombre'] ?>"><?= $archivo['tipo'] ?></button>
+                        data-archivo="<?= $archivo['tipo'] ?>" data-nombre="<?= $archivo['nombre'] ?>"><?= pathinfo($archivo['nombre'], PATHINFO_FILENAME) ?></button>
             <?php endforeach; ?>
         </div>
 
-        <div class="inspector-cuerpo">
-            <div class="tabla-contenedor" id="panel-archivo" role="tabpanel" aria-labelledby="pestana-0">
-                <p class="ruta-archivo mono" id="ruta-archivo">data/pedidos.json</p>
-                <table class="tabla">
-                    <thead>
-                    <tr>
-                        <th scope="col">Consumidor</th>
-                        <th scope="col">Accion</th>
-                        <th scope="col">Estado</th>
-                    </tr>
-                    </thead>
-                    <tbody id="cuerpo-tabla"></tbody>
-                </table>
-            </div>
-
-            <details class="json-bruto">
-                <summary>Ver el JSON del archivo</summary>
-                <pre id="json-bruto"></pre>
-            </details>
+        <div class="inspector-cuerpo" id="panel-archivo" role="tabpanel" aria-labelledby="pestana-0">
+            <p class="ruta-archivo mono" id="ruta-archivo">data/pedidos.json</p>
+            <pre class="json" id="json-bruto"></pre>
         </div>
-    </section>
+    </aside>
 </main>
 
 <div class="aviso" id="aviso" role="status" aria-live="polite"></div>

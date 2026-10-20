@@ -42,6 +42,20 @@ function escenariosDisponibles(): array
     ];
 }
 
+function rutasDeConsumidor(): array
+{
+    $rutas = [];
+
+    foreach (RUTAS_CONSUMIDOR as $tipo => $destinos) {
+        $rutas[$tipo] = array_map(
+            fn (string $destino): string => AREAS_CONSUMIDOR[$destino] ?? $destino,
+            $destinos
+        );
+    }
+
+    return $rutas;
+}
+
 function estadoDeArchivos(): array
 {
     $archivos = [];
