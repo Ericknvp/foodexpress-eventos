@@ -13,8 +13,6 @@ const elementos = {
 };
 
 let archivoActivo = 'nuevo_pedido';
-let eventosEmitidos = 0;
-let entregasTotales = 0;
 let avisoTemporizador = null;
 
 function crearElemento(etiqueta, clase, texto) {
@@ -173,8 +171,16 @@ function pintarFranja(canal, areas) {
 }
 
 function actualizarContadores() {
-    elementos.cifraEventos.textContent = String(eventosEmitidos);
-    elementos.cifraEntregas.textContent = String(entregasTotales);
+    const tipos = new Set();
+    let entregas = 0;
+
+    estadoArchivos.forEach((archivo) => {
+        entregas += archivo.registros.length;
+        archivo.registros.forEach((registro) => tipos.add(registro.evento));
+    });
+
+    elementos.cifraEventos.textContent = String(tipos.size);
+    elementos.cifraEntregas.textContent = String(entregas);
 }
 
 async function emitir(clave, boton) {
@@ -195,8 +201,6 @@ async function emitir(clave, boton) {
         }
 
         estadoArchivos = datos.archivos;
-        eventosEmitidos += 1;
-        entregasTotales += datos.ruta.resultados.length;
 
         pintarFranja(datos.canal, datos.ruta.destinos);
         poblarBandejas(estadoArchivos);
@@ -224,8 +228,6 @@ async function reiniciar() {
         const datos = await respuesta.json();
 
         estadoArchivos = datos.archivos;
-        eventosEmitidos = 0;
-        entregasTotales = 0;
 
         poblarBandejas(estadoArchivos);
         poblarTabla(estadoArchivos);
@@ -262,6 +264,7 @@ function iniciar() {
             estadoArchivos = datos.archivos;
             poblarBandejas(estadoArchivos);
             poblarTabla(estadoArchivos);
+            actualizarContadores();
         })
         .catch(() => mostrarAviso('No se pudo leer el estado de los archivos.', 'error'));
 }
