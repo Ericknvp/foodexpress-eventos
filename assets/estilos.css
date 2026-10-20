@@ -159,7 +159,7 @@ table {
     align-items: center;
     gap: 6px;
     padding: 3px 9px;
-    border: 1px solid var(--linea-fuerte);
+    border: 1px solid #8c99a6;
     border-radius: 4px;
     background: var(--papel);
     font-size: 12px;
@@ -219,7 +219,7 @@ table {
     position: relative;
     width: 20px;
     height: 1px;
-    background: var(--linea-fuerte);
+    background: #8c99a6;
 }
 
 .conector::after {
@@ -228,7 +228,7 @@ table {
     right: 0;
     top: -3.5px;
     border: 3.5px solid transparent;
-    border-left-color: var(--linea-fuerte);
+    border-left-color: #8c99a6;
 }
 
 .corrida {
@@ -313,8 +313,9 @@ table {
 }
 
 .boton--primario[disabled] {
-    background: var(--linea-fuerte);
-    color: #ffffff;
+    background: #e3e8ee;
+    border-color: #e3e8ee;
+    color: var(--tinta-2);
     cursor: progress;
 }
 
