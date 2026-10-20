@@ -54,7 +54,10 @@ $areas = [
         <ol class="escenarios">
             <?php foreach ($escenarios as $escenario): ?>
                 <li class="escenario" data-escenario="<?= $escenario['clave'] ?>">
-                    <span class="escenario-canal"><?= CANALES_EVENTO[$escenario['canal']] ?? $escenario['canal'] ?></span>
+                    <div class="escenario-cabecera">
+                        <span class="escenario-canal"><?= CANALES_EVENTO[$escenario['canal']] ?? $escenario['canal'] ?></span>
+                        <button type="button" class="boton boton--primario" data-emitir="<?= $escenario['clave'] ?>">Emitir</button>
+                    </div>
                     <p class="escenario-tipo"><?= $escenario['clave'] ?></p>
                     <p class="escenario-descripcion"><?= $escenario['descripcion'] ?></p>
                     <dl class="escenario-campos">
@@ -66,7 +69,6 @@ $areas = [
                             <dd><?= is_array($valor) ? count($valor) . ' platos' : htmlspecialchars((string) $valor, ENT_QUOTES) ?></dd>
                         <?php endforeach; ?>
                     </dl>
-                    <button type="button" class="boton boton--primario" data-emitir="<?= $escenario['clave'] ?>">Emitir <?= $escenario['nombre'] ?></button>
                 </li>
             <?php endforeach; ?>
         </ol>

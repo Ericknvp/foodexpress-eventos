@@ -851,3 +851,16 @@ table {
         transition-duration: 0.001ms !important;
     }
 }
+
+.escenario-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.escenario-cabecera .boton {
+    flex: none;
+    padding: 5px 12px;
+    font-size: 12.5px;
+}
