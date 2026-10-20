@@ -6,11 +6,19 @@ require_once __DIR__ . '/api/datos.php';
 
 $escenarios = escenariosDisponibles();
 $archivos = estadoDeArchivos();
-$areas = [
-    'cocina' => 'Cocina',
-    'logistica' => 'Logistica',
-    'atencion_cliente' => 'Atencion al Cliente',
-];
+
+function valorCampo(string $campo, $valor): string
+{
+    if ($campo === 'total') {
+        return '$ ' . number_format((float) $valor, 0, ',', '.');
+    }
+
+    if (is_array($valor)) {
+        return count($valor) . ' platos';
+    }
+
+    return htmlspecialchars((string) $valor, ENT_QUOTES);
+}
 ?><!DOCTYPE html>
 <html lang="es">
 <head>
@@ -49,24 +57,25 @@ $areas = [
 <main class="banco">
     <section class="zona compositor" aria-labelledby="titulo-compositor">
         <h2 class="zona-titulo" id="titulo-compositor">Compositor</h2>
-        <p class="zona-nota">Elige un escenario y emite el evento. El enrutador decide a que areas internas llega.</p>
+        <p class="zona-nota">Elige un escenario y emite el evento. El enrutador decide a qué áreas internas llega. Los datos son ficticios, de simulación.</p>
 
         <ol class="escenarios">
             <?php foreach ($escenarios as $escenario): ?>
                 <li class="escenario" data-escenario="<?= $escenario['clave'] ?>">
                     <div class="escenario-cabecera">
-                        <span class="escenario-canal"><?= CANALES_EVENTO[$escenario['canal']] ?? $escenario['canal'] ?></span>
+                        <p class="escenario-tipo"><?= $escenario['clave'] ?></p>
                         <button type="button" class="boton boton--primario" data-emitir="<?= $escenario['clave'] ?>">Emitir</button>
                     </div>
-                    <p class="escenario-tipo"><?= $escenario['clave'] ?></p>
                     <p class="escenario-descripcion"><?= $escenario['descripcion'] ?></p>
                     <dl class="escenario-campos">
+                        <dt>canal</dt>
+                        <dd><?= CANALES_EVENTO[$escenario['canal']] ?? $escenario['canal'] ?></dd>
                         <?php foreach ($escenario['evento'] as $campo => $valor): ?>
                             <?php if ($campo === 'tipo' || $campo === 'fecha' || $campo === 'origen') {
                                 continue;
                             } ?>
                             <dt><?= $campo ?></dt>
-                            <dd><?= is_array($valor) ? count($valor) . ' platos' : htmlspecialchars((string) $valor, ENT_QUOTES) ?></dd>
+                            <dd><?= valorCampo($campo, $valor) ?></dd>
                         <?php endforeach; ?>
                     </dl>
                 </li>
@@ -75,10 +84,10 @@ $areas = [
     </section>
 
     <section class="zona bandejas" aria-labelledby="titulo-bandejas">
-        <h2 class="zona-titulo" id="titulo-bandejas">Entregas por area interna</h2>
+        <h2 class="zona-titulo" id="titulo-bandejas">Entregas por área interna</h2>
 
         <div class="bandejas-tarjetas">
-            <?php foreach ($areas as $clave => $nombre): ?>
+            <?php foreach (AREAS_CONSUMIDOR as $clave => $nombre): ?>
                 <article class="bandeja bandeja--<?= $clave ?>" data-area="<?= $clave ?>">
                     <header class="bandeja-cabecera">
                         <span class="bandeja-punto" aria-hidden="true"></span>
@@ -94,11 +103,12 @@ $areas = [
     <section class="zona inspector" aria-labelledby="titulo-inspector">
         <h2 class="zona-titulo" id="titulo-inspector">Archivos de datos</h2>
 
-        <div class="pestanas" role="tablist" aria-label="Archivos de eventos">
+        <div class="pestanas" role="tablist" aria-label="Tipos de evento">
             <?php foreach ($archivos as $indice => $archivo): ?>
                 <button type="button" class="pestana" role="tab" id="pestana-<?= $indice ?>"
                         aria-controls="panel-archivo" aria-selected="<?= $indice === 0 ? 'true' : 'false' ?>"
-                        data-archivo="<?= $archivo['tipo'] ?>"><?= pathinfo($archivo['nombre'], PATHINFO_FILENAME) ?></button>
+                        tabindex="<?= $indice === 0 ? '0' : '-1' ?>"
+                        data-archivo="<?= $archivo['tipo'] ?>" data-nombre="<?= $archivo['nombre'] ?>"><?= $archivo['tipo'] ?></button>
             <?php endforeach; ?>
         </div>
 
@@ -118,7 +128,7 @@ $areas = [
             </div>
 
             <details class="json-bruto">
-                <summary>Ver JSON del archivo</summary>
+                <summary>Ver el JSON del archivo</summary>
                 <pre id="json-bruto"></pre>
             </details>
         </div>

@@ -1,5 +1,10 @@
 const AREAS = ['cocina', 'logistica', 'atencion_cliente'];
 const ESTADOS_ALARMA = ['cancelado'];
+const NOMBRES_AREA = {
+    cocina: 'Cocina',
+    logistica: 'Logística',
+    atencion_cliente: 'Atención al Cliente',
+};
 
 const elementos = {
     franja: document.getElementById('franja'),
@@ -117,8 +122,7 @@ function poblarBandejas(archivos, animar) {
         pila.innerHTML = '';
 
         if (fichas.length === 0) {
-            const vacia = crearElemento('li', 'bandeja-vacia', 'Sin entregas en esta corrida');
-            pila.appendChild(vacia);
+            const vacia = crearElemento('li', 'bandeja-vacia', 'Sin entregas en esta corrida');            pila.appendChild(vacia);
         } else {
             fichas.forEach((item) => {
                 const clave = claveFicha(item.registro);
@@ -139,7 +143,7 @@ function poblarTabla(archivos) {
 
     if (archivo.registros.length === 0) {
         const fila = crearElemento('tr');
-        const celda = crearElemento('td', 'celda-mono', 'El archivo aun no tiene registros.');
+        const celda = crearElemento('td', 'celda-mono', 'El archivo aún no tiene registros.');
         celda.colSpan = 3;
         fila.appendChild(celda);
         elementos.cuerpoTabla.appendChild(fila);
@@ -147,7 +151,7 @@ function poblarTabla(archivos) {
         archivo.registros.forEach((registro) => {
             const fila = crearElemento('tr');
             const consumidor = crearElemento('td', 'celda-mono');
-            consumidor.appendChild(crearElemento('strong', null, registro.consumidor));
+            consumidor.appendChild(crearElemento('strong', null, NOMBRES_AREA[registro.consumidor] || registro.consumidor));
             fila.appendChild(consumidor);
             fila.appendChild(crearElemento('td', 'celda-mono', registro.accion));
 
@@ -233,7 +237,7 @@ async function emitir(clave, boton) {
         seleccionarArchivo(destino);
 
         const destinos = datos.ruta.destinos
-            .map((area) => datos.ruta.resultados.find((r) => r.consumidor === area).nombre)
+            .map((area) => NOMBRES_AREA[area] || area)
             .join(' y ');
 
         mostrarAviso(datos.ruta.tipo + ' entregado a ' + destinos + '.');
@@ -284,7 +288,7 @@ async function reiniciar() {
         poblarBandejas(estadoArchivos, false);
         poblarTabla(estadoArchivos);
         actualizarContadores();
-        mostrarAviso('Archivos de data/ reiniciados.');
+        mostrarAviso('Archivos de data/ reiniciados. La simulación vuelve a empezar.');
     } catch (error) {
         mostrarAviso(error.message, 'error');
     } finally {
