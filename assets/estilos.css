@@ -864,3 +864,20 @@ table {
     padding: 5px 12px;
     font-size: 12.5px;
 }
+
+.pestanas {
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.pestanas::-webkit-scrollbar {
+    display: none;
+}
+
+.pestana {
+    flex: none;
+}
+
+.tabla .celda-mono span {
+    color: var(--tinta-3);
+}

@@ -109,8 +109,7 @@ $areas = [
                     <tr>
                         <th scope="col">Consumidor</th>
                         <th scope="col">Accion</th>
-                        <th scope="col">Estado</th>
-                        <th scope="col">Registro</th>
+                        <th scope="col">Estado y registro</th>
                     </tr>
                     </thead>
                     <tbody id="cuerpo-tabla"></tbody>

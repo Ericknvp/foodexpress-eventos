@@ -125,7 +125,7 @@ function poblarTabla(archivos) {
     if (archivo.registros.length === 0) {
         const fila = crearElemento('tr');
         const celda = crearElemento('td', 'celda-mono', 'El archivo aun no tiene registros.');
-        celda.colSpan = 4;
+        celda.colSpan = 3;
         fila.appendChild(celda);
         elementos.cuerpoTabla.appendChild(fila);
     } else {
@@ -135,8 +135,13 @@ function poblarTabla(archivos) {
             consumidor.appendChild(crearElemento('strong', null, registro.consumidor));
             fila.appendChild(consumidor);
             fila.appendChild(crearElemento('td', 'celda-mono', registro.accion));
-            fila.appendChild(crearElemento('td', 'celda-mono', registro.estado));
-            fila.appendChild(crearElemento('td', 'celda-mono', registro.registrado_en));
+
+            const estado = crearElemento('td', 'celda-mono');
+            estado.appendChild(crearElemento('strong', null, registro.estado));
+            estado.appendChild(crearElemento('br'));
+            estado.appendChild(crearElemento('span', null, registro.registrado_en));
+            fila.appendChild(estado);
+
             elementos.cuerpoTabla.appendChild(fila);
         });
     }
