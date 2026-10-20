@@ -72,6 +72,11 @@ function campo(string $etiqueta, string $valor, int $largo = 14): void
     echo ' ' . str_pad($etiqueta, $largo, '.') . ' ' . $valor . PHP_EOL;
 }
 
+function dato(string $etiqueta, string $valor): void
+{
+    echo ' ' . str_pad($etiqueta, 22, '.') . ' ' . $valor . PHP_EOL;
+}
+
 function dinero(int $valor): string
 {
     return '$ ' . number_format($valor, 0, ',', '.');
