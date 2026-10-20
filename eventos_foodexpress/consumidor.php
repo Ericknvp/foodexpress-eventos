@@ -49,32 +49,33 @@ function escribirRegistros(string $tipo, array $registros): void
     file_put_contents(rutaArchivo($tipo), $json . PHP_EOL, LOCK_EX);
 }
 
-function pedidoExiste(string $idPedido): bool
+function registrosDe(string $tipo, string $idPedido): array
 {
-    foreach (leerRegistros('nuevo_pedido') as $registro) {
+    $encontrados = [];
+
+    foreach (leerRegistros($tipo) as $registro) {
         if (($registro['id_pedido'] ?? '') === $idPedido) {
-            return true;
+            $encontrados[] = $registro;
         }
     }
 
-    return false;
+    return $encontrados;
+}
+
+function pedidoExiste(string $idPedido): bool
+{
+    return registrosDe('nuevo_pedido', $idPedido) !== [];
 }
 
 function pedidoCancelado(string $idPedido): bool
 {
-    foreach (leerRegistros('pedido_cancelado') as $registro) {
-        if (($registro['id_pedido'] ?? '') === $idPedido) {
-            return true;
-        }
-    }
-
-    return false;
+    return registrosDe('pedido_cancelado', $idPedido) !== [];
 }
 
 function repartidorDe(string $idPedido): ?string
 {
-    foreach (leerRegistros('nuevo_pedido') as $registro) {
-        if (($registro['consumidor'] ?? '') === 'logistica' && ($registro['id_pedido'] ?? '') === $idPedido) {
+    foreach (registrosDe('nuevo_pedido', $idPedido) as $registro) {
+        if (($registro['consumidor'] ?? '') === 'logistica') {
             return $registro['repartidor'] ?? null;
         }
     }
@@ -188,6 +189,7 @@ function atencion_cliente(array $evento): array
 
 function consumir(string $area, array $evento): array
 {
+    // La funcion del area se llama con su propio nombre: cocina(), logistica(), atencion_cliente().
     $respuesta = $area($evento);
 
     $registro = array_merge(
