@@ -134,6 +134,10 @@ function cocina(array $evento): array
             $accion = 'detener_preparacion';
             $estado = 'preparacion_detenida';
             $detalle = 'La preparacion estaba en curso, se detiene y se libera la mesa.';
+        } elseif ($estadoActual === 'preparacion_detenida') {
+            $accion = 'cancelacion_ya_procesada';
+            $estado = 'preparacion_detenida';
+            $detalle = 'El pedido ya estaba cancelado, la preparacion sigue detenida.';
         } elseif ($estadoActual === 'plato_listo') {
             $accion = 'cancelacion_no_posible';
             $estado = 'preparacion_completada';
@@ -172,21 +176,9 @@ function siguienteRepartidor(): string
 
 function repartidorAsignado(string $idPedido): ?string
 {
-    $repartidor = null;
+    $interno = estadoInternoPedido($idPedido);
 
-    foreach (leerRegistros('nuevo_pedido') as $registro) {
-        if (($registro['consumidor'] ?? '') === 'logistica' && ($registro['id_pedido'] ?? '') === $idPedido) {
-            $repartidor = $registro['repartidor'] ?? null;
-        }
-    }
-
-    foreach (leerRegistros('pedido_cancelado') as $registro) {
-        if (($registro['consumidor'] ?? '') === 'logistica' && ($registro['id_pedido'] ?? '') === $idPedido) {
-            $repartidor = null;
-        }
-    }
-
-    return $repartidor;
+    return $interno['repartidor'];
 }
 
 function logistica(array $evento): array
@@ -205,13 +197,19 @@ function logistica(array $evento): array
     }
 
     if ($tipo === 'pedido_cancelado') {
-        $repartidor = repartidorAsignado($evento['id_pedido']);
+        $interno = estadoInternoPedido($evento['id_pedido']);
+        $repartidor = $interno['repartidor'];
 
         if ($repartidor !== null) {
             $accion = 'liberar_repartidor';
             $estado = 'repartidor_liberado';
             $detalle = "Repartidor {$repartidor} liberado, queda disponible para otro pedido.";
             $campos = ['repartidor' => $repartidor];
+        } elseif ($interno['repartidor_liberado']) {
+            $accion = 'repartidor_ya_liberado';
+            $estado = 'repartidor_liberado';
+            $detalle = 'El repartidor de este pedido ya estaba liberado, no hay nada mas que liberar.';
+            $campos = [];
         } else {
             $accion = 'sin_repartidor_para_liberar';
             $estado = 'sin_repartidor_asignado';
