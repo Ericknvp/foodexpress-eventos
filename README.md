@@ -92,10 +92,13 @@ desde el canal hasta el area interna que lo recibe, con la accion que cada
 consumidor ejecuto y el archivo JSON donde quedo registrada. La web y la linea
 de comandos escriben sobre los mismos archivos de `data/`.
 
-La consola tiene tres zonas: el **compositor** con los tres escenarios a la
-izquierda, las **bandejas por area interna** en el centro y el **inspector de
-archivos** a la derecha, con las pestanas de los tres JSON y el contenido del
-archivo activo.
+La consola tiene tres zonas y nada mas:
+
+| Zona | Que muestra |
+|---|---|
+| **Escenarios** | Los tres eventos de la guia, el canal de entrada y a que areas los manda el enrutador. |
+| **Entregas por area interna** | Una columna por area (Cocina, Logistica, Atencion al Cliente) con la accion que ejecuto y el archivo donde quedo escrita. |
+| **Archivos de data/** | El JSON del archivo seleccionado, tal cual queda en disco. |
 
 ### En la linea de comandos
 

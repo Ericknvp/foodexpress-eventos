@@ -7,8 +7,10 @@
 Panel de trabajo claro, de mesa de despacho, para una consola de operaciones que se
 proyecta en un aula con luz ambiente. Nada de escenografía: superficies blancas
 sobre un fondo gris frío, filetes finos, tinta casi negra y un único azul de
-carrier para la estructura y la acción primaria. Una retícula de construcción de
-8px se transparenta en la cabecera como armadura del plano.
+carrier para la acción primaria. Tres marcas de área, apagadas, identifican Cocina,
+Logística y Atención al Cliente. La retícula de construcción y la franja de ruteo
+del primer diseño se retiraron: con tres zonas y un filete por columna, la
+estructura ya se lee sola.
 
 ## Color
 
@@ -46,37 +48,36 @@ la etiqueta del evento y como texto; nunca inundan una superficie.
 
 | Componente | Definición |
 |---|---|
-| Cabecera | 57px, tres zonas: marca a la izquierda, franja de ruteo centrada en la página, cifras y acción secundaria a la derecha. Retícula visible de fondo. |
-| Franja de ruteo | Cajas de 12px con filete fuerte, punto de área, conectores dibujados en CSS. Al emitir, el canal, el enrutador y las áreas destino se rellenan con su color y pulsan una vez. |
-| Compositor | Columna de 300px. Cada escenario es una ficha: tipo de evento en monoespaciada, botón `Emitir` en la cabecera, descripción, y los campos reales del evento con sus valores. |
-| Bandeja | Una por área interna. Cabecera con punto de área, nombre y conteo; pila de fichas con la entrega más reciente arriba. |
-| Ficha de entrega | Etiqueta del evento, id del pedido, acción, estado, detalle y pie con archivo y hora. La más nueva entra con una sola animación de 420ms. |
-| Inspector | Pestañas por tipo de evento, la ruta del archivo, una tabla de registros y el JSON crudo plegable. |
+| Cabecera | 57px: marca a la izquierda, boton `Reiniciar datos` a la derecha. Sin franja de ruteo ni contadores: el enrutador se ve en la zona de escenarios y en las columnas. |
+| Zona de escenarios | Columna de 320px con los tres eventos. Cada uno muestra su tipo en monoespaciada, el canal de entrada con una flecha y las areas destino, una linea de comportamiento y el boton `Emitir`. |
+| Columna de area | Una por area interna, separada de las demas por un filete vertical. Encabezado con punto de color, nombre y conteo; pila de entregas con la mas reciente arriba. |
+| Ficha de entrega | Cuatro lineas: tipo de evento, accion, estado y archivo donde se registro. Sin borde, sin sombra, sin detalle duplicado: el detalle ya esta en el JSON. |
+| Archivos de data/ | Panel con pestanas por tipo de evento, la ruta del archivo y el JSON crudo tal cual queda en disco. |
 | Botones | Primario `carrier` para emitir; secundario con filete para reiniciar. Estado deshabilitado con tinte neutro y texto legible. |
 
 ## Movimiento
 
 Un solo momento, el de la entrega: la ficha nueva entra con un desplazamiento
-de 8px y un desenfoque de opacidad, con salida exponencial
-`cubic-bezier(0.16, 1, 0.3, 1)`, y la franja de ruteo pulsa las cajas implicadas.
+de 6px y un fundido, con salida exponencial `cubic-bezier(0.16, 1, 0.3, 1)`.
 Solo las fichas realmente nuevas se animan; las ya presentes nunca quedan
-ocultas por el temporizador de la animación. Con `prefers-reduced-motion` todo
+ocultas por el temporizador de la animacion. Con `prefers-reduced-motion` todo
 se reduce a 0.
 
 ## Superficies del navegador
 
-Selección `#cfe0ef` sobre tinta, barras de scroll finas con pulgar `#c6d0da`,
+Seleccion `#cfe0ef` sobre tinta, barras de scroll finas con pulgar `#c6d0da`,
 anillo de foco `2px` en carrier con desplazamiento de `2px`, cifras tabulares en
-todo dato comparable. No hay campos de entrada en la superficie, así que el caret
-y el subrayado no aplican.
+todo numero comparable. No hay campos de entrada en la superficie, asi que el
+caret y el subrayado no aplican.
 
 ## Regla de Responsive
 
 | Ancho | Composición |
 |---|---|
-| ≥1361px | Tres columnas: compositor 300px, bandejas fluidas, inspector 380px. |
-| 861–1360px | Compositor 280px y bandejas; el inspector pasa debajo a todo el ancho. |
-| ≤860px | Una sola columna: compositor, bandejas apiladas, inspector debajo. La cabecera se apila en tres filas. |
+| ≥1361px | Tres columnas: escenarios 320px, entregas fluidas, archivos 360px. |
+| 1181–1360px | Escenarios 300px, entregas fluidas con las fichas a 12.5px, archivos 330px. |
+| 861–1180px | Escenarios 300px y entregas; los archivos pasan debajo a todo el ancho. |
+| ≤860px | Una sola columna: escenarios, areas apiladas, archivos debajo. |
 
 ## Voz
 
