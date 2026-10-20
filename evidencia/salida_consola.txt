@@ -2,7 +2,7 @@
                        FOODEXPRESS - SISTEMA DE EVENTOS
 ==============================================================================
  Taller 1 | Patron: productor -> enrutador -> consumidor
- Corrida: 2026-10-20 17:58:13
+ Corrida: 2026-10-20 18:00:11
 ==============================================================================
 
 PREPARACION DE LA SIMULACION
