@@ -330,3 +330,76 @@ table {
     opacity: 0.55;
     cursor: progress;
 }
+
+.compositor {
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.escenarios {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.escenario {
+    background: var(--papel);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra-baja);
+    padding: 14px 14px 12px;
+}
+
+.escenario-canal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--carrier);
+}
+
+.escenario-tipo {
+    margin-top: 6px;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tinta);
+    word-break: break-all;
+}
+
+.escenario-descripcion {
+    margin-top: 6px;
+    font-size: 12.5px;
+    line-height: 1.4;
+    color: var(--tinta-2);
+}
+
+.escenario-campos {
+    margin: 12px 0 14px;
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 3px 8px;
+    font-size: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--linea);
+}
+
+.escenario-campos dt {
+    color: var(--tinta-3);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding-top: 1px;
+}
+
+.escenario-campos dd {
+    color: var(--tinta);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.escenario .boton {
+    width: 100%;
+}
