@@ -187,8 +187,10 @@ function ejecutar(): void
     seccion('PREPARACION DE LA SIMULACION');
     dato('Modo', 'simulacion reproducible');
     dato('Origenes', 'app movil y sitio web');
-    dato('Archivos', 'data/pedidos.json, data/cancelaciones.json, data/consultas_estado.json');
-    dato('Estado', 'los tres archivos se reinician vacios antes de emitir los eventos');
+    dato('Archivos', 'data/pedidos.json');
+    echo ' ' . str_repeat(' ', 22) . ' data/cancelaciones.json' . PHP_EOL;
+    echo ' ' . str_repeat(' ', 22) . ' data/consultas_estado.json' . PHP_EOL;
+    dato('Estado', 'se reinician vacios antes de emitir');
 
     reiniciarDatos();
 
