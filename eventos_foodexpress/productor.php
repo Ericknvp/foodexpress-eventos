@@ -46,3 +46,31 @@ function escenarioConsultaEstado(): array
         'fecha' => '2026-10-20 12:09:10',
     ];
 }
+
+function linea(string $caracter = '-'): string
+{
+    return str_repeat($caracter, ANCHO);
+}
+
+function titulo(string $texto): void
+{
+    echo linea('=') . PHP_EOL;
+    echo ' ' . $texto . PHP_EOL;
+    echo linea('=') . PHP_EOL;
+}
+
+function seccion(string $texto): void
+{
+    echo PHP_EOL . $texto . PHP_EOL;
+    echo linea('-') . PHP_EOL;
+}
+
+function campo(string $etiqueta, string $valor, int $largo = 14): void
+{
+    echo ' ' . str_pad($etiqueta, $largo, '.') . ' ' . $valor . PHP_EOL;
+}
+
+function dinero(int $valor): string
+{
+    return '$ ' . number_format($valor, 0, ',', '.');
+}
