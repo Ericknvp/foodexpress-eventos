@@ -112,3 +112,44 @@ function estadoPreparacion(string $idPedido): string
 
     return $estado;
 }
+
+function cocina(array $evento): array
+{
+    $tipo = $evento['tipo'];
+
+    if ($tipo === 'nuevo_pedido') {
+        $cantidad = count($evento['items'] ?? []);
+
+        return registrarAccion($tipo, 'cocina', $evento, [
+            'accion' => 'inicio_preparacion',
+            'estado' => 'preparacion_en_curso',
+            'detalle' => "Comanda recibida en cocina: {$cantidad} plato(s) para preparar.",
+        ]);
+    }
+
+    if ($tipo === 'pedido_cancelado') {
+        $estadoActual = estadoPreparacion($evento['id_pedido']);
+
+        if ($estadoActual === 'preparacion_en_curso') {
+            $accion = 'detener_preparacion';
+            $estado = 'preparacion_detenida';
+            $detalle = 'La preparacion estaba en curso, se detiene y se libera la mesa.';
+        } elseif ($estadoActual === 'plato_listo') {
+            $accion = 'cancelacion_no_posible';
+            $estado = 'preparacion_completada';
+            $detalle = 'El plato ya estaba listo, la cancelacion no aplica sobre la preparacion.';
+        } else {
+            $accion = 'sin_preparacion_para_cancelar';
+            $estado = 'sin_preparacion';
+            $detalle = 'No habia preparacion activa para este pedido, no hay nada que detener.';
+        }
+
+        return registrarAccion($tipo, 'cocina', $evento, [
+            'accion' => $accion,
+            'estado' => $estado,
+            'detalle' => $detalle,
+        ]);
+    }
+
+    throw new InvalidArgumentException("El consumidor de cocina no procesa el evento {$tipo}");
+}
