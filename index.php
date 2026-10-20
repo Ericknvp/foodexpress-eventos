@@ -34,7 +34,7 @@ $rutas = rutasDeConsumidor();
 <main class="banco">
     <section class="compositor" aria-labelledby="titulo-compositor">
         <h2 class="zona-titulo" id="titulo-compositor">Escenarios</h2>
-        <p class="zona-nota">Datos ficticios de simulación. Cada emisión pasa por el enrutador.</p>
+        <p class="zona-nota">Datos ficticios de simulación.</p>
 
         <ol class="escenarios">
             <?php foreach ($escenarios as $escenario): ?>
