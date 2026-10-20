@@ -166,12 +166,27 @@ const REPARTIDORES = [
 
 function siguienteRepartidor(): string
 {
-    static $indice = 0;
+    $ocupados = [];
 
-    $repartidor = REPARTIDORES[$indice % count(REPARTIDORES)];
-    $indice++;
+    foreach (leerRegistros('nuevo_pedido') as $registro) {
+        if (($registro['consumidor'] ?? '') === 'logistica' && isset($registro['repartidor'])) {
+            $ocupados[$registro['repartidor']] = true;
+        }
+    }
 
-    return $repartidor;
+    foreach (leerRegistros('pedido_cancelado') as $registro) {
+        if (($registro['consumidor'] ?? '') === 'logistica' && ($registro['estado'] ?? '') === 'repartidor_liberado') {
+            unset($ocupados[$registro['repartidor']]);
+        }
+    }
+
+    foreach (REPARTIDORES as $repartidor) {
+        if (!isset($ocupados[$repartidor])) {
+            return $repartidor;
+        }
+    }
+
+    return REPARTIDORES[count(REPARTIDORES) - 1];
 }
 
 function repartidorAsignado(string $idPedido): ?string
