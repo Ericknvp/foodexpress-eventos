@@ -1,4 +1,5 @@
 const AREAS = ['cocina', 'logistica', 'atencion_cliente'];
+
 const NOMBRES_AREA = {
     cocina: 'Cocina',
     logistica: 'Logística',
@@ -14,27 +15,13 @@ const elementos = {
     pestanas: Array.from(document.querySelectorAll('.pestana')),
 };
 
+let archivos = [];
 let archivoActivo = 'nuevo_pedido';
-let estadoArchivos = [];
-let avisoTemporizador = null;
-const fichasConocidas = new Set();
 
-function crearElemento(etiqueta, clase, texto) {
-    const nodo = document.createElement(etiqueta);
+function nombreArchivoDe(tipo) {
+    const encontrado = archivos.find((archivo) => archivo.tipo === tipo);
 
-    if (clase) {
-        nodo.className = clase;
-    }
-
-    if (texto !== undefined) {
-        nodo.textContent = texto;
-    }
-
-    return nodo;
-}
-
-function claveFicha(registro) {
-    return [registro.consumidor, registro.accion, registro.registrado_en].join('|');
+    return encontrado ? encontrado.nombre : '';
 }
 
 function mostrarAviso(texto, tono) {
@@ -42,80 +29,68 @@ function mostrarAviso(texto, tono) {
     elementos.aviso.dataset.tono = tono || 'info';
     elementos.aviso.classList.add('visible');
 
-    window.clearTimeout(avisoTemporizador);
-    avisoTemporizador = window.setTimeout(() => {
+    window.clearTimeout(mostrarAviso.temporizador);
+    mostrarAviso.temporizador = window.setTimeout(() => {
         elementos.aviso.classList.remove('visible');
-    }, 3200);
+    }, 3000);
 }
 
-function nombreArchivoDe(tipo) {
-    const encontrado = estadoArchivos.find((archivo) => archivo.tipo === tipo);
-
-    return encontrado ? encontrado.nombre : '';
+function todosLosRegistros() {
+    return archivos.flatMap((archivo) => archivo.registros);
 }
 
-function construirFicha(registro, animar) {
-    const ficha = crearElemento('li', 'ficha');
+function crearFicha(registro) {
+    const ficha = document.createElement('li');
+    const evento = document.createElement('p');
+    const accion = document.createElement('p');
+    const estado = document.createElement('p');
+    const pie = document.createElement('p');
 
-    ficha.appendChild(crearElemento('p', 'ficha-evento', registro.evento));
-    ficha.appendChild(crearElemento('p', 'ficha-accion', registro.accion));
+    ficha.className = 'ficha';
+    evento.className = 'ficha-evento';
+    evento.textContent = registro.evento;
 
-    const estado = crearElemento('p', 'ficha-estado', registro.estado);
+    accion.className = 'ficha-accion';
+    accion.textContent = registro.accion;
+
+    estado.className = 'ficha-estado';
+    estado.textContent = registro.estado;
 
     if (registro.estado === 'cancelado') {
         estado.dataset.alarma = 'si';
     }
 
-    ficha.appendChild(estado);
-    ficha.appendChild(crearElemento('p', 'ficha-pie', 'data/' + nombreArchivoDe(registro.evento)));
+    pie.className = 'ficha-pie';
+    pie.textContent = 'data/' + nombreArchivoDe(registro.evento);
 
-    if (animar) {
-        ficha.classList.add('ficha-nueva');
-    }
+    ficha.append(evento, accion, estado, pie);
 
     return ficha;
 }
 
-function poblarAreas(animar) {
+function pintarAreas() {
     AREAS.forEach((area) => {
         const pila = document.querySelector('[data-pila="' + area + '"]');
-        const fichas = [];
-
-        estadoArchivos.forEach((archivo) => {
-            archivo.registros.forEach((registro, posicion) => {
-                if (registro.consumidor === area) {
-                    fichas.push({ registro: registro, posicion: posicion });
-                }
-            });
-        });
-
-        fichas.sort((a, b) => {
-            if (a.registro.registrado_en === b.registro.registrado_en) {
-                return b.posicion - a.posicion;
-            }
-
-            return a.registro.registrado_en < b.registro.registrado_en ? 1 : -1;
-        });
+        const entregas = todosLosRegistros().filter((registro) => registro.consumidor === area);
 
         pila.innerHTML = '';
 
-        if (fichas.length === 0) {
-            pila.appendChild(crearElemento('li', 'bandeja-vacia', 'Sin entregas todavía.'));
+        if (entregas.length === 0) {
+            const vacia = document.createElement('li');
+
+            vacia.className = 'bandeja-vacia';
+            vacia.textContent = 'Sin entregas todavía.';
+            pila.appendChild(vacia);
         } else {
-            fichas.forEach((item) => {
-                const clave = claveFicha(item.registro);
-                const esNueva = !fichasConocidas.has(clave);
-                fichasConocidas.add(clave);
-                pila.appendChild(construirFicha(item.registro, esNueva && animar));
-            });
+            entregas.forEach((registro) => pila.appendChild(crearFicha(registro)));
         }
 
-        document.querySelector('[data-conteo="' + area + '"]').textContent = String(fichas.length);
+        document.querySelector('[data-conteo="' + area + '"]').textContent = String(entregas.length);
     });
 }
 
-function poblarArchivo() {
-    const archivo = estadoArchivos.find((item) => item.tipo === archivoActivo) || estadoArchivos[0];
+function pintarArchivo() {
+    const archivo = archivos.find((item) => item.tipo === archivoActivo) || archivos[0];
 
     elementos.jsonBruto.textContent = JSON.stringify(archivo.registros, null, 2);
     elementos.rutaArchivo.textContent = 'data/' + archivo.nombre;
@@ -126,24 +101,14 @@ function activarPestana(pestana) {
 
     elementos.pestanas.forEach((otra) => {
         const activa = otra === pestana;
+
         otra.setAttribute('aria-selected', activa ? 'true' : 'false');
         otra.tabIndex = activa ? 0 : -1;
     });
 
     elementos.panelArchivo.setAttribute('aria-labelledby', pestana.id);
-    poblarArchivo();
-}
 
-function seleccionarArchivo(nombreArchivo) {
-    if (!nombreArchivo) {
-        return;
-    }
-
-    const pestana = elementos.pestanas.find((otra) => otra.dataset.nombre === nombreArchivo);
-
-    if (pestana) {
-        activarPestana(pestana);
-    }
+    pintarArchivo();
 }
 
 async function emitir(clave, boton) {
@@ -163,13 +128,17 @@ async function emitir(clave, boton) {
             throw new Error(datos.error || 'No se pudo emitir el evento');
         }
 
-        estadoArchivos = datos.archivos;
+        archivos = datos.archivos;
 
-        poblarAreas(true);
-        poblarArchivo();
+        pintarAreas();
+        pintarArchivo();
 
-        const destino = datos.ruta.resultados[0] ? nombreArchivoDe(datos.ruta.resultados[0].evento) : '';
-        seleccionarArchivo(destino);
+        const tipo = datos.ruta.resultados[0].evento;
+        const pestana = elementos.pestanas.find((otra) => otra.dataset.archivo === tipo);
+
+        if (pestana) {
+            activarPestana(pestana);
+        }
 
         const areas = datos.ruta.destinos.map((area) => NOMBRES_AREA[area] || area).join(' y ');
 
@@ -189,11 +158,11 @@ async function reiniciar() {
         const respuesta = await fetch('api.php?accion=reiniciar', { method: 'POST' });
         const datos = await respuesta.json();
 
-        estadoArchivos = datos.archivos;
-        fichasConocidas.clear();
+        archivos = datos.archivos;
 
-        poblarAreas(false);
-        poblarArchivo();
+        pintarAreas();
+        pintarArchivo();
+
         mostrarAviso('Archivos de data/ reiniciados.');
     } catch (error) {
         mostrarAviso(error.message, 'error');
@@ -216,9 +185,10 @@ function iniciar() {
     fetch('api.php?accion=estado')
         .then((respuesta) => respuesta.json())
         .then((datos) => {
-            estadoArchivos = datos.archivos;
-            poblarAreas(false);
-            poblarArchivo();
+            archivos = datos.archivos;
+
+            pintarAreas();
+            pintarArchivo();
         })
         .catch(() => mostrarAviso('No se pudo leer el estado de los archivos.', 'error'));
 }
