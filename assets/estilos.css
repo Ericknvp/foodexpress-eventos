@@ -806,7 +806,7 @@ table {
     }
 
     .barra-superior {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(0, 1fr);
         height: auto;
         padding: 10px 12px;
         row-gap: 8px;
@@ -818,6 +818,11 @@ table {
         padding: 6px 0;
         overflow-x: auto;
         justify-content: flex-start;
+    }
+
+    .corrida {
+        order: 2;
+        justify-content: space-between;
     }
 
     .banco {
