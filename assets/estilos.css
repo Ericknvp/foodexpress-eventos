@@ -727,3 +727,127 @@ table {
     color: var(--tinta-2);
     white-space: pre;
 }
+
+.aviso {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translate(-50%, 12px);
+    max-width: min(560px, calc(100vw - 32px));
+    padding: 10px 16px;
+    border-radius: var(--radio);
+    background: var(--tinta);
+    color: #f4f7fa;
+    font-size: 13px;
+    box-shadow: 0 12px 32px -12px rgba(16, 24, 40, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 220ms ease, transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.aviso.visible {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+.aviso[data-tono="error"] {
+    background: var(--alarma);
+}
+
+.ficha-nueva {
+    animation: entrada-ficha 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes entrada-ficha {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.franja-caja.pulso {
+    animation: pulso-caja 620ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pulso-caja {
+    0% {
+        transform: scale(1);
+    }
+
+    38% {
+        transform: scale(1.07);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 1180px) {
+    .barra-superior {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+
+    .banco {
+        grid-template-columns: 280px minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) minmax(240px, 40vh);
+    }
+
+    .inspector {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 860px) {
+    body {
+        font-size: 14px;
+    }
+
+    .barra-superior {
+        grid-template-columns: 1fr auto;
+        height: auto;
+        padding: 10px 12px;
+        row-gap: 8px;
+    }
+
+    .franja {
+        grid-column: 1 / -1;
+        order: 3;
+        padding: 6px 0;
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+
+    .banco {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto auto;
+        height: auto;
+    }
+
+    .compositor,
+    .bandejas,
+    .inspector {
+        overflow: visible;
+    }
+
+    .bandejas-tarjetas {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .bandeja-pila {
+        max-height: 320px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}
