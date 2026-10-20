@@ -153,3 +153,38 @@ function cocina(array $evento): array
 
     throw new InvalidArgumentException("El consumidor de cocina no procesa el evento {$tipo}");
 }
+
+const REPARTIDORES = [
+    'Carlos Ramirez',
+    'Daniela Ortiz',
+    'Andres Molina',
+];
+
+function siguienteRepartidor(): string
+{
+    static $indice = 0;
+
+    $repartidor = REPARTIDORES[$indice % count(REPARTIDORES)];
+    $indice++;
+
+    return $repartidor;
+}
+
+function repartidorAsignado(string $idPedido): ?string
+{
+    $repartidor = null;
+
+    foreach (leerRegistros('nuevo_pedido') as $registro) {
+        if (($registro['consumidor'] ?? '') === 'logistica' && ($registro['id_pedido'] ?? '') === $idPedido) {
+            $repartidor = $registro['repartidor'] ?? null;
+        }
+    }
+
+    foreach (leerRegistros('pedido_cancelado') as $registro) {
+        if (($registro['consumidor'] ?? '') === 'logistica' && ($registro['id_pedido'] ?? '') === $idPedido) {
+            $repartidor = null;
+        }
+    }
+
+    return $repartidor;
+}
