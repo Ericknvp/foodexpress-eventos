@@ -117,3 +117,12 @@ function renderEvento(array $evento): void
         return;
     }
 }
+
+function renderResultado(array $resultado): void
+{
+    echo PHP_EOL . ' ' . strtoupper($resultado['nombre']) . PHP_EOL;
+    campo('accion', $resultado['accion']);
+    campo('estado', $resultado['estado']);
+    campo('detalle', envolver($resultado['detalle']));
+    campo('registro', 'data/' . $resultado['archivo']);
+}
