@@ -5,3 +5,8 @@ Thumbs.db
 *.log
 .codex/
 .impeccable/
+
+# Audio generado para el video: se regenera con video/generar-voz.ps1
+video/voz/
+video/voz-pista.wav
+video/voz-pista.mp3
