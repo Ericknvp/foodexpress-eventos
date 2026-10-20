@@ -49,7 +49,7 @@ function escenarioConsultaEstado(): array
         'tipo' => 'consulta_estado_pedido',
         'origen' => 'app_movil',
         'id_pedido' => 'FE-1001',
-        'cliente' => 'Valentina Rojas',
+        'cliente' => 'Erick Narváez',
         'fecha' => '2026-10-20 12:09:10',
     ];
 }
