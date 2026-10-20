@@ -162,3 +162,59 @@ function reiniciarDatos(): void
         file_put_contents(directorioDatos() . DIRECTORY_SEPARATOR . $archivo, '[]' . PHP_EOL, LOCK_EX);
     }
 }
+
+function encabezadoEscenario(int $numero, string $titulo): void
+{
+    echo linea('-') . PHP_EOL;
+    echo ' ESCENARIO ' . $numero . ' | ' . $titulo . PHP_EOL;
+    echo linea('-') . PHP_EOL;
+}
+
+function ejecutar(): void
+{
+    titulo('FOODEXPRESS - SISTEMA DE EVENTOS');
+    echo ' Taller 1 | Patron: productor -> enrutador -> consumidor' . PHP_EOL;
+    echo ' Corrida: ' . date('Y-m-d H:i:s') . PHP_EOL;
+    echo linea('=') . PHP_EOL;
+
+    seccion('PREPARACION DE LA SIMULACION');
+    campo('Modo', 'simulacion reproducible');
+    campo('Origenes', 'app movil y sitio web');
+    campo('Archivos', 'data/pedidos.json, data/cancelaciones.json, data/consultas_estado.json');
+    campo('Estado', 'los tres archivos se reinician vacios antes de emitir los eventos');
+
+    reiniciarDatos();
+
+    $escenarios = [
+        ['titulo' => 'Pedido nuevo desde la app movil', 'evento' => escenarioPedidoNuevo()],
+        ['titulo' => 'Pedido cancelado desde el sitio web', 'evento' => escenarioPedidoCancelado()],
+        ['titulo' => 'Consulta de estado del pedido desde la app movil', 'evento' => escenarioConsultaEstado()],
+    ];
+
+    $resumen = [];
+
+    foreach ($escenarios as $indice => $escenario) {
+        $numero = $indice + 1;
+
+        encabezadoEscenario($numero, $escenario['titulo']);
+        renderEvento($escenario['evento']);
+
+        $ruta = enrutar($escenario['evento']);
+
+        echo PHP_EOL . ' ENRUTADO  ' . $ruta['ruta'] . PHP_EOL;
+
+        foreach ($ruta['resultados'] as $resultado) {
+            renderResultado($resultado);
+
+            $resumen[] = [
+                (string) $numero,
+                $ruta['tipo'],
+                $resultado['nombre'],
+                $resultado['accion'],
+                'data/' . $resultado['archivo'],
+            ];
+        }
+    }
+
+    renderResumen($resumen);
+}
