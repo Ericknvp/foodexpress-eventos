@@ -218,3 +218,28 @@ function ejecutar(): void
 
     renderResumen($resumen);
 }
+
+function renderResumen(array $resumen, int $eventos): void
+{
+    titulo('RESUMEN DE LA CORRIDA');
+    echo ' Entregas realizadas por el enrutador' . PHP_EOL;
+    echo linea('-') . PHP_EOL;
+    tabla(['Escenario', 'Evento', 'Consumidor', 'Accion', 'Registro'], $resumen);
+
+    echo PHP_EOL . ' ARCHIVOS GENERADOS' . PHP_EOL;
+    echo linea('-') . PHP_EOL;
+
+    $total = 0;
+
+    foreach (ARCHIVO_POR_EVENTO as $tipo => $archivo) {
+        $registros = leerRegistros($tipo);
+        $total += count($registros);
+        campo('data/' . $archivo, count($registros) . ' registros', 28);
+    }
+
+    echo linea('-') . PHP_EOL;
+    campo('Eventos emitidos', (string) $eventos);
+    campo('Entregas a consumidores', (string) count($resumen));
+    campo('Registros persistidos', (string) $total);
+    echo linea('=') . PHP_EOL;
+}
