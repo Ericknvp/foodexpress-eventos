@@ -14,6 +14,11 @@ const elementos = {
 
 let archivoActivo = 'nuevo_pedido';
 let avisoTemporizador = null;
+const fichasConocidas = new Set();
+
+function claveFicha(registro) {
+    return [registro.consumidor, registro.accion, registro.estado, registro.registrado_en, registro.id_pedido || ''].join('|');
+}
 
 function crearElemento(etiqueta, clase, texto) {
     const nodo = document.createElement(etiqueta);
@@ -44,8 +49,8 @@ function mostrarAviso(texto, tono) {
     }, 3200);
 }
 
-function construirFicha(registro) {
-    const ficha = crearElemento('li', 'ficha ficha-nueva');
+function construirFicha(registro, animar) {
+    const ficha = crearElemento('li', 'ficha');
     const entrada = crearElemento('div', 'ficha-entrada');
 
     entrada.appendChild(crearElemento('span', 'ficha-evento', registro.evento));
@@ -76,6 +81,10 @@ function construirFicha(registro) {
 
     ficha.appendChild(pie);
 
+    if (animar) {
+        ficha.classList.add('ficha-nueva');
+    }
+
     return ficha;
 }
 
@@ -87,7 +96,7 @@ function archivoDeTipo(tipo) {
 
 let estadoArchivos = [];
 
-function poblarBandejas(archivos) {
+function poblarBandejas(archivos, animar) {
     AREAS.forEach((area) => {
         const pila = document.querySelector('[data-pila="' + area + '"]');
         const fichas = [];
@@ -107,7 +116,10 @@ function poblarBandejas(archivos) {
             pila.appendChild(vacia);
         } else {
             fichas.forEach((registro) => {
-                pila.appendChild(construirFicha(registro));
+                const clave = claveFicha(registro);
+                const esNueva = !fichasConocidas.has(clave);
+                fichasConocidas.add(clave);
+                pila.appendChild(construirFicha(registro, esNueva && animar));
             });
         }
 
@@ -203,7 +215,7 @@ async function emitir(clave, boton) {
         estadoArchivos = datos.archivos;
 
         pintarFranja(datos.canal, datos.ruta.destinos);
-        poblarBandejas(estadoArchivos);
+        poblarBandejas(estadoArchivos, true);
         poblarTabla(estadoArchivos);
         actualizarContadores();
 
@@ -228,8 +240,9 @@ async function reiniciar() {
         const datos = await respuesta.json();
 
         estadoArchivos = datos.archivos;
+        fichasConocidas.clear();
 
-        poblarBandejas(estadoArchivos);
+        poblarBandejas(estadoArchivos, false);
         poblarTabla(estadoArchivos);
         actualizarContadores();
         mostrarAviso('Archivos de data/ reiniciados.');
@@ -262,7 +275,7 @@ function iniciar() {
         .then((respuesta) => respuesta.json())
         .then((datos) => {
             estadoArchivos = datos.archivos;
-            poblarBandejas(estadoArchivos);
+            poblarBandejas(estadoArchivos, false);
             poblarTabla(estadoArchivos);
             actualizarContadores();
         })
