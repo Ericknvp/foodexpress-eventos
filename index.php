@@ -19,7 +19,8 @@ $rutas = rutasDeConsumidor();
 <header class="cabecera">
     <div class="marca">
         <span class="marca-nombre">FoodExpress</span>
-        <span class="marca-detalle">Taller 1 · Sistema de eventos</span>
+        <span class="marca-sep" aria-hidden="true">-</span>
+        <span class="marca-detalle">Pedidos de comida</span>
     </div>
     <button type="button" class="boton boton--secundario" id="reiniciar">Reiniciar datos</button>
 </header>
