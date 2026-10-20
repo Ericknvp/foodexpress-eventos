@@ -5,7 +5,7 @@
         "accion": "responder_estado_pedido",
         "estado": "cancelado",
         "detalle": "El pedido FE-1001 quedo cancelado desde el sitio web. Motivo: El cliente digito una direccion equivocada y cancelo desde el sitio web. La preparacion se detuvo y el repartidor fue liberado, por lo que no habra entrega.",
-        "registrado_en": "2026-10-20 15:49:03",
+        "registrado_en": "2026-10-20 17:14:13",
         "pasos_consultados": 4,
         "origen": "app_movil",
         "fecha": "2026-10-20 12:09:10",
