@@ -7,14 +7,14 @@ taller reproduce ese sistema con el patron **productor, enrutador, consumidor**.
 ## Estructura
 
 ```
-eventos_foodexpress/        el taller, con la estructura que pide la guia
+eventos_foodexpress/        el taller
 ├── data/
 │   ├── pedidos.json
 │   ├── cancelaciones.json
 │   └── consultas_estado.json
-├── router.php
-├── productor.php
-└── consumidor.php
+├── productor.php            arma los eventos y los entrega
+├── router.php               decide a que areas va cada evento
+└── consumidor.php           cocina, logistica y atencion al cliente
 
 index.php                    la consola web
 api.php                      un solo endpoint: ?accion=emitir|estado|reiniciar
@@ -26,8 +26,7 @@ assets/                      estilos.css y app.js
 
 Una plataforma de comida recibe pedidos, cancelaciones y consultas de dos
 canales (app movil y sitio web). Cada evento tiene que llegar a las areas que
-lo atienden y dejar constancia de que lo hicieron. El taller simula ese trafico
-con tres eventos y tres areas internas:
+lo atienden y dejar constancia de que lo hicieron.
 
 | Evento | Canal | Areas que lo reciben | Archivo donde queda escrito |
 |---|---|---|---|
@@ -35,7 +34,7 @@ con tres eventos y tres areas internas:
 | `pedido_cancelado` | sitio web | Cocina y Logistica | `data/cancelaciones.json` |
 | `consulta_estado_pedido` | app movil | Atencion al Cliente | `data/consultas_estado.json` |
 
-Los datos son ficticios: el pedido `FE-1001` de Erick Narváez en el restaurante
+Los datos son ficticios: el pedido `FE-1001` de Erick Narvaez en el restaurante
 SaborBrasa es el ejemplo que recorre todo el sistema.
 
 ## Como funciona
@@ -43,29 +42,23 @@ SaborBrasa es el ejemplo que recorre todo el sistema.
 El recorrido de un evento es siempre el mismo, y son cuatro archivos:
 
 1. **El productor** (`productor.php`) arma el evento con sus datos y lo entrega.
-   En la terminal emite los tres escenarios de corrido; en la web, cada boton
-   `Emitir` emite uno.
 2. **El enrutador** (`router.php`) mira el tipo del evento, comprueba que no le
-   falte ningun campo y decide a que areas lo manda. `nuevo_pedido` y
-   `pedido_cancelado` van a dos areas (fan-out); `consulta_estado_pedido` va a
-   una sola.
+   falte ningun campo y lo reparte a las areas que le corresponden.
 3. **Los consumidores** (`consumidor.php`) son Cocina, Logistica y Atencion al
-   Cliente. Cada uno reacciona segun su rol de negocio y **escribe lo que hizo
-   en el JSON que corresponde al tipo de evento**.
-4. Los archivos de `data/` quedan como la unica fuente de verdad: la terminal y
-   la web leen y escriben los mismos.
+   Cliente. Cada uno decide que hace segun su rol de negocio.
+4. La funcion `consumir()` escribe lo que hizo en el JSON que corresponde al
+   tipo de evento. Los archivos de `data/` quedan como la unica fuente de
+   verdad: la terminal y la web leen y escriben los mismos.
 
 Lo importante es que las reacciones **no estan escritas a mano, se deciden con el
-estado real**:
+estado real** que esta guardado en los JSON:
 
-- Cocina solo detiene una preparacion que estaba en curso. Si el pedido ya
-  estaba cancelado, responde que ya lo estaba; si nunca se preparo, responde
-  que no hay nada que detener.
-- Logistica solo libera un repartidor que ya estaba asignado. Si no habia
-  repartidor, lo dice.
-- Atencion al Cliente reconstruye la trayectoria del pedido (creado, asignado,
-  cancelado) y responde con el estado real: `en_transito`, `en_preparacion` o
-  `cancelado` con el motivo.
+- Cocina detiene la preparacion si el pedido existia; si nunca se preparo,
+  responde que no hay nada que detener.
+- Logistica libera al repartidor que estaba asignado; si no habia repartidor,
+  lo dice.
+- Atencion al Cliente reconstruye la trayectoria del pedido y responde con el
+  estado real: `en_preparacion`, `cancelado` o `desconocido`.
 
 Por eso el mismo evento puede dar respuestas distintas segun lo que haya
 pasado antes: si emites el pedido nuevo y luego lo cancelas, cocina detiene la
