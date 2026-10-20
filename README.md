@@ -70,7 +70,7 @@ estado real**:
 Por eso el mismo evento puede dar respuestas distintas segun lo que haya
 pasado antes: si emites el pedido nuevo y luego lo cancelas, cocina detiene la
 preparacion y logistica suelta al repartidor; si cancelas un pedido que nunca
-llego a较强的, te diran que no habia nada que parar.
+llego a preparacion, te diran que no habia nada que parar.
 
 ## Como se usa
 
