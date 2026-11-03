@@ -1,4 +1,4 @@
-# FoodExpress · Taller 1: Sis
+# FoodExpress · Taller 1: Sist
 
 FoodExpress es una plataforma de domicilios de comida que recibe eventos desde
 distintos canales y debe enrutarlos hacia el area interna que los atiende. Este
