@@ -1,7 +1,7 @@
 # FoodExpress · Taller 1: Sistema de eventos
 
 FoodExpress es una plataforma de domicilios de comida que recibe eventos desde
-distintos canales y debe enrutarlos hacia el area interna que los atiende. Est
+distintos canales y debe enrutarlos hacia el area interna que los atiende. Este
 taller reproduce ese sistema con el patron **productor, enrutador, consumidor**.
 
 ## Estructura
