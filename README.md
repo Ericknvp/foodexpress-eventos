@@ -1,4 +1,4 @@
-# FoodExpress · Taller 1: Sistema de e
+# FoodExpress · Taller 1: Sistema de 
 
 FoodExpress es una plataforma de domicilios de comida que recibe eventos desde
 distintos canales y debe enrutarlos hacia el area interna que los atiende. Este
